@@ -1,0 +1,82 @@
+import querystring from 'querystring';
+{{#if responseType}}
+import { {{ responseType }} } from "./apiResponses";
+{{/if}}
+import { {{ queryParamsType }} } from "./apiQueries";
+{{#if (and responseType isGenerateZod)}}
+import { {{ zodPascalCase name }}ResponseSchema } from './apiResponses.zod';
+{{/if}}
+import customFetch from "@/lib/fetch";
+
+type QueryParamsCompatible<T> = {
+  [K in keyof T]: string | number | boolean | readonly string[] | readonly number[] | readonly boolean[] | null;
+};
+
+function convertQueryParams<T extends object>(params: T): QueryParamsCompatible<T> {
+  return Object.fromEntries(
+    Object.entries(params).map(([key, value]) => [
+      key,
+      value instanceof Date ? value.toISOString() : value,
+    ])
+  ) as QueryParamsCompatible<T>;
+}
+
+{{#if hasItems}}type ResponseCollectionData<T = unknown> = T & { _meta?: { currentPage?: number } };{{/if}}
+
+export const {{ camelCase name }}QueryOptions = (params: {{ queryParamsType }}) => ({
+  queryKey: ['{{ name }}', params],
+  queryFn: async () => {
+    const queryString = querystring.stringify(convertQueryParams(params));
+
+    const res = await customFetch{{#if responseType}}<{{ responseType }}>{{/if}}({
+      url: `{{ apiPath }}` + (queryString ? `?${queryString}` : ''),
+      method: 'GET' 
+    });
+
+    const resWithParse = 
+    {{#if (and responseType isGenerateZod)}}
+    {{ zodPascalCase name }}ResponseSchema.safeParse(res).data;
+    {{else}}
+    res{{#if responseType}} as {{ responseType }}{{/if}};
+    {{/if}}
+
+    return resWithParse;
+  },
+});
+
+export const {{ camelCase name }}QueryKeys = (params: {{ queryParamsType }}) => {
+  return ['{{ name }}', params];
+} 
+
+{{#if hasItems}}
+// Infinite Query
+export const {{ camelCase infiniteQueryName }}InfiniteQueryOptions = (params: {{ queryParamsType }}) => ({
+  queryKey: ['{{ infiniteQueryName }}', params],
+  queryFn: async ({ pageParam = 1 }) => {
+    const queryString = querystring.stringify(convertQueryParams({...params, page: pageParam}));
+
+    const res = await customFetch{{#if responseType}}<{{ responseType }}>{{/if}}({
+      url: `{{ apiPath }}` + (queryString ? `?${queryString}` : ''),
+      method: 'GET' 
+    });
+
+    const resWithParse = 
+    {{#if (and responseType isGenerateZod)}}
+    {{ zodPascalCase name }}ResponseSchema.safeParse(res).data;
+    {{else}}
+    res{{#if responseType}} as {{ responseType }}{{/if}};
+    {{/if}}
+
+    const resData = resWithParse?.data as ResponseCollectionData;
+
+    return {
+      data: resWithParse,
+      nextPage: resData?._meta?.currentPage ? resData?._meta?.currentPage + 1 : null
+    };
+  }
+});
+
+export const {{ camelCase infiniteQueryName }}QueryKeys = (params: {{ queryParamsType }}) => {
+  return ['{{ infiniteQueryName }}', params];
+} 
+{{/if}}
