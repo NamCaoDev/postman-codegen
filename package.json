@@ -5,16 +5,10 @@
   "license": "MIT",
   "homepage": "https://github.com/NamCaoDev/postman-codegen.git#readme",
   "description": "Auto generate all types, query options, mutation options by postman json",
-  "main": "index.js",
   "bin": {
     "postman-codegen": "cross-env NODE_OPTIONS='--import tsx' plop --plopfile=index.ts generate-queries"
   },
-  "types": "dist/index.d.ts",
-  "module": "index.ts",
   "private": false,
-  "files": [
-    "build"
-  ],
   "keywords": [
     "codegen",
     "tanstack-query",
