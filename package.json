@@ -9,7 +9,8 @@
   "types": "dist/index.d.ts",
   "files": [
     "index.ts",
-    "dist"
+    "dist",
+    "README.md"
   ],
   "bin": {
     "postman-codegen": "bin/codegen.js"
