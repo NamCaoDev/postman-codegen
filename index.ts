@@ -10,7 +10,22 @@ import fg from "fast-glob";
 import pLimit from "p-limit";
 import { exec } from "child_process";
 import _ from "lodash";
-import { z } from "zod";
+import { CodegenConfigSchema } from "./helpers/schema";
+import {
+  CONFIG_ARGS_NAME,
+  PostmanFormData,
+  APIData,
+  PlopActionDataParams,
+} from "./helpers/types";
+import {
+  isValidJSON,
+  convertToKebabCase,
+  transformFormDataToPayloadObject,
+  cleanUrl,
+  safeStringify,
+} from "./helpers";
+
+const LIBRARY_ROOT = path.resolve(__dirname);
 
 const configPath = path.resolve(process.cwd(), "codegen.config.cjs");
 
@@ -23,8 +38,7 @@ let codegenConfig: Record<string, any>;
 
 if (fs.existsSync(configPath)) {
   if (configPath.endsWith(".cjs")) {
-    codegenConfig = require(configPath)?.default || require(configPath);
-    console.log("Da vao day lay js file", require(configPath)?.default);
+    codegenConfig = require(configPath);
   } else if (configPath.endsWith(".json")) {
     codegenConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
   } else {
@@ -40,74 +54,13 @@ if (!codegenConfig) {
   throw new Error("❌ codegenConfig is undefined. Check config loading logic.");
 }
 
-export const CodegenConfigSchema = z.object({
-  postmanJsonPath: z.string().min(1, "postmanJsonPath is required"), // Postman Json Path
-  generateOutputPath: z.string().min(1, "generateOutputPath is required"), // Generated Folder path
-  hbsTemplateQueryPath: z.string().min(1, "hbsTemplateQueryPath is required"), // Template hbs for query
-  hbsTemplateQueryWithParamsPath: z
-    .string()
-    .min(1, "hbsTemplateQueryWithParamsPath is required"), // Template hbs for query with search params
-  hbsTemplateMutationPath: z
-    .string()
-    .min(1, "hbsTemplateMutationPath is required"), // Template hbs for mutation
-  propertyApiGetList: z.string().min(1, "propertyApiGetList is required"), // With api get list fields includes list data
-  enableZodGeneration: z.boolean().optional(), // enabled zod
-  generateFileNames: z
-    .object({
-      requestType: z.string().optional(),
-      queryType: z.string().optional(),
-      responseType: z.string().optional(),
-      queryOptions: z.string().optional(),
-      mutationOptions: z.string().optional(),
-    })
-    .optional(), // Generate file names you want (Optional)
-});
-
-export type CodegenConfig = z.infer<typeof CodegenConfigSchema>;
-
 try {
   // Validate config
   const validatedConfig = CodegenConfigSchema.parse(codegenConfig);
-  console.log(
-    "Codegen config 2",
-    path.resolve(process.cwd(), codegenConfig.postmanJsonPath)
-  );
   console.log("✅ Codegen Config Loaded:", validatedConfig);
 } catch (err) {
   console.error("❌ Config error:", err.errors);
   process.exit(1); // Exit process
-}
-
-// Config ARGS
-const enum CONFIG_ARGS_NAME {
-  PLOP_ACTION = "generate-queries",
-  GENERATE_ZOD_SCHEMA = "generate-zod-schema",
-}
-
-interface PostmanFormData {
-  key: string;
-  type: string;
-  value: string;
-}
-
-interface APIData {
-  method: string;
-  formdata: PostmanFormData[] | null;
-  rawBodyRequest: unknown | null;
-  queryParams: PostmanFormData[] | null;
-  response: unknown | null;
-  url: string;
-}
-
-export interface PlopActionDataParams {
-  name: string;
-  queryParamsType?: string;
-  responseType: string;
-  apiPath: string;
-  infiniteQueryName?: string;
-  hasItems?: boolean;
-  method?: string;
-  isGenerateZod?: boolean;
 }
 
 // Base config Nodejs
@@ -127,24 +80,27 @@ const QUERY_GENERATE_FILE_NAME =
   codegenConfig?.generateFileNames?.queryOptions ?? "query.ts";
 const MUTATION_GENERATE_FILE_NAME =
   codegenConfig?.generateFileNames?.mutationOptions ?? "mutation.ts";
+// Types Configs
+const TYPE_CONFIGS = codegenConfig?.typeConfigs;
 
 // Plop Generate Config
-const PLOP_TEMPLATE_QUERY_PATH = path.resolve(
-  process.cwd(),
-  codegenConfig.hbsTemplateQueryPath
+const PLOP_TEMPLATE_QUERY_PATH = path.join(
+  LIBRARY_ROOT,
+  "/plop-templates/query.hbs"
 );
-const PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH = path.resolve(
-  process.cwd(),
-  codegenConfig.hbsTemplateQueryWithParamsPath
+const PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH = path.join(
+  LIBRARY_ROOT,
+  "/plop-templates/queryWithParams.hbs"
 );
-const PLOP_TEMPLATE_MUTATION_PATH = path.resolve(
-  process.cwd(),
-  codegenConfig.hbsTemplateMutationPath
+const PLOP_TEMPLATE_MUTATION_PATH = path.join(
+  LIBRARY_ROOT,
+  "/plop-templates/mutation.hbs"
 );
 const PLOP_ACTION_GENERATE_NAME = CONFIG_ARGS_NAME.PLOP_ACTION;
 const PLOP_DESCRIPTION_GENERATE =
   "Generate TanStack QueryOptions, MutationOptions, and QueryParams";
 const PROPERTY_API_GET_LIST = codegenConfig.propertyApiGetList;
+const FETCHER_LINK = codegenConfig.fetcher;
 
 // Generate zod schema config
 const LIMIT_PROCESS_GEN_ZOD_FILE = 5;
@@ -154,46 +110,6 @@ const IS_MATCH_PLOP_ACTION_ARG = process.argv.includes(
   `${CONFIG_ARGS_NAME.PLOP_ACTION}`
 );
 const IS_GENERATE_ZOD_FILE = codegenConfig.enableZodGeneration ?? false;
-
-function isValidJSON(jsonString) {
-  try {
-    JSON.parse(jsonString);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-const convertToKebabCase = (str) => {
-  return str
-    .replace(/([a-z])([A-Z])/g, "$1-$2")
-    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
-    .toLowerCase();
-};
-
-function transformFormDataToPayloadObject(arr: PostmanFormData[]) {
-  return arr.reduce((acc, { key, value }) => {
-    acc[key] = value;
-    return acc;
-  }, {});
-}
-
-const cleanUrl = (url) => {
-  return url?.replace(/\{\{base_url\}\}/, "").split("?")[0];
-};
-
-const safeStringify = (json) => {
-  return JSON.stringify(
-    json,
-    (_, value) =>
-      typeof value === "undefined"
-        ? null
-        : typeof value === "bigint"
-        ? value.toString()
-        : value,
-    2
-  );
-};
 
 const generateTypeScriptType = async (
   jsonData,
@@ -221,7 +137,15 @@ const generateTypeScriptType = async (
       rendererOptions: {
         "just-types": "true",
       },
+      ...TYPE_CONFIGS,
     });
+
+    if (TYPE_CONFIGS?.allPropertiesOptional) {
+      return lines
+        .join("\n")
+        .replace(/:(\s.+)null;/gm, ":$1unknown;")
+        .replace(/:((?!.*(null|unknown).*).*);/g, ":$1 | null;");
+    }
 
     return lines.join("\n");
   } catch (err) {
@@ -344,7 +268,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
       );
     }
 
-    if (apiData.method === "GET") {
+    if (apiData.method === "GET" || apiData.method === "DELETE") {
       if (apiData.queryParams) {
         actions.push({
           type: "add",
@@ -353,6 +277,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
           force: true,
           data: {
             name: entity,
+            method: apiData.method,
             queryParamsType: `${entity}QueryParams`.replace(/[-/:]/g, ""),
             responseType: !_.isEmpty(apiData.response)
               ? `${entity}Response`.replace(/[-/:]/g, "")
@@ -361,6 +286,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
             infiniteQueryName: `${entity}Infinite`,
             hasItems: apiDataHasItems,
             isGenerateZod: IS_GENERATE_ZOD_FILE,
+            fetcher: FETCHER_LINK,
           } as PlopActionDataParams,
         });
       } else {
@@ -371,6 +297,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
           force: true,
           data: {
             name: entity,
+            method: apiData.method,
             responseType: !_.isEmpty(apiData.response)
               ? `${entity}Response`.replace(/[-/:]/g, "")
               : null,
@@ -378,6 +305,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
             infiniteQueryName: `${entity}Infinite`,
             hasItems: apiDataHasItems,
             isGenerateZod: IS_GENERATE_ZOD_FILE,
+            fetcher: FETCHER_LINK,
           } as PlopActionDataParams,
         });
       }
@@ -401,6 +329,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
           apiPath: cleanUrl(apiData.url),
           method: apiData.method,
           isGenerateZod: IS_GENERATE_ZOD_FILE,
+          fetcher: FETCHER_LINK,
         } as PlopActionDataParams,
       });
     }

@@ -6,9 +6,9 @@ import { {{ requestType }} } from "./apiRequests";
 import { {{ responseType }} } from "./apiResponses";
 {{/if}}
 {{#if (and responseType isGenerateZod)}}
-import { {{ zodPascalCase name }}ResponseSchema } from './apiResponses.zod';
+import { {{ zodPascalCase name }}ResponseSchema } from "./apiResponses.zod";
 {{/if}}
-import customFetch from "@/lib/fetch";
+import customFetch from "{{fetcher}}";
 
 export const {{ camelCase name }}MutationOptions = (): MutationOptions<
   {{#if responseType}}{{ responseType }}{{else}}null{{/if}} {{#if responseType}}| undefined{{/if}}, 
@@ -22,7 +22,7 @@ export const {{ camelCase name }}MutationOptions = (): MutationOptions<
       body: data, 
     });
 
-    const resWithParse = {{#if (and responseType isGenerateZod)}}{{ zodPascalCase name }}ResponseSchema.safeParse(res).data
+    const resWithParse = {{#if (and responseType isGenerateZod)}}{{ zodPascalCase name }}ResponseSchema.parse(res)
     {{else}}
     res{{#if responseType}} as {{ responseType }}{{/if}}
     {{/if}}

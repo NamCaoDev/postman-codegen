@@ -1,11 +1,14 @@
 module.exports = {
-  postmanJsonPath: "examples/postman-collection.json", // Postman Json Path
+  postmanJsonPath: "examples/pos-postman-collection.json", // Postman Json Path
   generateOutputPath: "examples/generated", // Generated Folder path
-  hbsTemplateQueryPath: "plop-templates/query.hbs", // Template hbs for query
-  hbsTemplateQueryWithParamsPath: "plop-templates/queryWithParams.hbs", // Template hbs for query with search params
-  hbsTemplateMutationPath: "plop-templates/mutation.hbs", // Template hbs for mutation
   propertyApiGetList: "items", // With api get list fields includes list data
   enableZodGeneration: true, // Enable genearate schema
+  typeConfigs: {
+    allPropertiesOptional: true, // mark all properties will optional,
+    inferEnums: true,
+    inferDateTimes: true,
+  },
+  fetcher: "../../../helpers/fetcher",
   generateFileNames: {
     requestType: "apiRequests.ts",
     queryType: "apiQueries.ts",

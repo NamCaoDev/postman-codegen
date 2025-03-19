@@ -11,9 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CodegenConfigSchema = void 0;
 exports.default = default_1;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -22,7 +21,9 @@ const fast_glob_1 = __importDefault(require("fast-glob"));
 const p_limit_1 = __importDefault(require("p-limit"));
 const child_process_1 = require("child_process");
 const lodash_1 = __importDefault(require("lodash"));
-const zod_1 = require("zod");
+const schema_1 = require("./helpers/schema");
+const helpers_1 = require("./helpers");
+const LIBRARY_ROOT = path_1.default.resolve(__dirname);
 const configPath = path_1.default.resolve(process.cwd(), "codegen.config.cjs");
 if (!fs_1.default.existsSync(configPath)) {
     console.error("❌ Missing codegen.config.js file. Please create one.");
@@ -31,8 +32,7 @@ if (!fs_1.default.existsSync(configPath)) {
 let codegenConfig;
 if (fs_1.default.existsSync(configPath)) {
     if (configPath.endsWith(".cjs")) {
-        codegenConfig = ((_a = require(configPath)) === null || _a === void 0 ? void 0 : _a.default) || require(configPath);
-        console.log("Da vao day lay js file", (_b = require(configPath)) === null || _b === void 0 ? void 0 : _b.default);
+        codegenConfig = require(configPath);
     }
     else if (configPath.endsWith(".json")) {
         codegenConfig = JSON.parse(fs_1.default.readFileSync(configPath, "utf-8"));
@@ -49,32 +49,9 @@ else {
 if (!codegenConfig) {
     throw new Error("❌ codegenConfig is undefined. Check config loading logic.");
 }
-exports.CodegenConfigSchema = zod_1.z.object({
-    postmanJsonPath: zod_1.z.string().min(1, "postmanJsonPath is required"), // Postman Json Path
-    generateOutputPath: zod_1.z.string().min(1, "generateOutputPath is required"), // Generated Folder path
-    hbsTemplateQueryPath: zod_1.z.string().min(1, "hbsTemplateQueryPath is required"), // Template hbs for query
-    hbsTemplateQueryWithParamsPath: zod_1.z
-        .string()
-        .min(1, "hbsTemplateQueryWithParamsPath is required"), // Template hbs for query with search params
-    hbsTemplateMutationPath: zod_1.z
-        .string()
-        .min(1, "hbsTemplateMutationPath is required"), // Template hbs for mutation
-    propertyApiGetList: zod_1.z.string().min(1, "propertyApiGetList is required"), // With api get list fields includes list data
-    enableZodGeneration: zod_1.z.boolean().optional(), // enabled zod
-    generateFileNames: zod_1.z
-        .object({
-        requestType: zod_1.z.string().optional(),
-        queryType: zod_1.z.string().optional(),
-        responseType: zod_1.z.string().optional(),
-        queryOptions: zod_1.z.string().optional(),
-        mutationOptions: zod_1.z.string().optional(),
-    })
-        .optional(), // Generate file names you want (Optional)
-});
 try {
     // Validate config
-    const validatedConfig = exports.CodegenConfigSchema.parse(codegenConfig);
-    console.log("Codegen config 2", path_1.default.resolve(process.cwd(), codegenConfig.postmanJsonPath));
+    const validatedConfig = schema_1.CodegenConfigSchema.parse(codegenConfig);
     console.log("✅ Codegen Config Loaded:", validatedConfig);
 }
 catch (err) {
@@ -87,74 +64,48 @@ const BUFFER_ENDCODING = "utf-8";
 const POSTMAN_JSON_PATH = codegenConfig.postmanJsonPath;
 const GENERATE_PATH = codegenConfig.generateOutputPath;
 // Files Name Generate config
-const REQUEST_TYPE_FILE_NAME = (_d = (_c = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _c === void 0 ? void 0 : _c.requestType) !== null && _d !== void 0 ? _d : "apiRequests.ts";
-const QUERY_TYPE_FILE_NAME = (_f = (_e = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _e === void 0 ? void 0 : _e.queryType) !== null && _f !== void 0 ? _f : "apiQueries.ts";
-const RESPONSE_TYPE_FILE_NAME = (_h = (_g = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _g === void 0 ? void 0 : _g.responseType) !== null && _h !== void 0 ? _h : "apiResponses.ts";
-const QUERY_GENERATE_FILE_NAME = (_k = (_j = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _j === void 0 ? void 0 : _j.queryOptions) !== null && _k !== void 0 ? _k : "query.ts";
-const MUTATION_GENERATE_FILE_NAME = (_m = (_l = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _l === void 0 ? void 0 : _l.mutationOptions) !== null && _m !== void 0 ? _m : "mutation.ts";
+const REQUEST_TYPE_FILE_NAME = (_b = (_a = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _a === void 0 ? void 0 : _a.requestType) !== null && _b !== void 0 ? _b : "apiRequests.ts";
+const QUERY_TYPE_FILE_NAME = (_d = (_c = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _c === void 0 ? void 0 : _c.queryType) !== null && _d !== void 0 ? _d : "apiQueries.ts";
+const RESPONSE_TYPE_FILE_NAME = (_f = (_e = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _e === void 0 ? void 0 : _e.responseType) !== null && _f !== void 0 ? _f : "apiResponses.ts";
+const QUERY_GENERATE_FILE_NAME = (_h = (_g = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _g === void 0 ? void 0 : _g.queryOptions) !== null && _h !== void 0 ? _h : "query.ts";
+const MUTATION_GENERATE_FILE_NAME = (_k = (_j = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _j === void 0 ? void 0 : _j.mutationOptions) !== null && _k !== void 0 ? _k : "mutation.ts";
+// Types Configs
+const TYPE_CONFIGS = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.typeConfigs;
 // Plop Generate Config
-const PLOP_TEMPLATE_QUERY_PATH = path_1.default.resolve(process.cwd(), codegenConfig.hbsTemplateQueryPath);
-const PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH = path_1.default.resolve(process.cwd(), codegenConfig.hbsTemplateQueryWithParamsPath);
-const PLOP_TEMPLATE_MUTATION_PATH = path_1.default.resolve(process.cwd(), codegenConfig.hbsTemplateMutationPath);
+const PLOP_TEMPLATE_QUERY_PATH = path_1.default.join(LIBRARY_ROOT, "/plop-templates/query.hbs");
+const PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH = path_1.default.join(LIBRARY_ROOT, "/plop-templates/queryWithParams.hbs");
+const PLOP_TEMPLATE_MUTATION_PATH = path_1.default.join(LIBRARY_ROOT, "/plop-templates/mutation.hbs");
 const PLOP_ACTION_GENERATE_NAME = "generate-queries" /* CONFIG_ARGS_NAME.PLOP_ACTION */;
 const PLOP_DESCRIPTION_GENERATE = "Generate TanStack QueryOptions, MutationOptions, and QueryParams";
 const PROPERTY_API_GET_LIST = codegenConfig.propertyApiGetList;
+const FETCHER_LINK = codegenConfig.fetcher;
 // Generate zod schema config
 const LIMIT_PROCESS_GEN_ZOD_FILE = 5;
 // Check Config options
 const IS_MATCH_PLOP_ACTION_ARG = process.argv.includes(`${"generate-queries" /* CONFIG_ARGS_NAME.PLOP_ACTION */}`);
-const IS_GENERATE_ZOD_FILE = (_o = codegenConfig.enableZodGeneration) !== null && _o !== void 0 ? _o : false;
-function isValidJSON(jsonString) {
-    try {
-        JSON.parse(jsonString);
-        return true;
-    }
-    catch (e) {
-        return false;
-    }
-}
-const convertToKebabCase = (str) => {
-    return str
-        .replace(/([a-z])([A-Z])/g, "$1-$2")
-        .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
-        .toLowerCase();
-};
-function transformFormDataToPayloadObject(arr) {
-    return arr.reduce((acc, { key, value }) => {
-        acc[key] = value;
-        return acc;
-    }, {});
-}
-const cleanUrl = (url) => {
-    return url === null || url === void 0 ? void 0 : url.replace(/\{\{base_url\}\}/, "").split("?")[0];
-};
-const safeStringify = (json) => {
-    return JSON.stringify(json, (_, value) => typeof value === "undefined"
-        ? null
-        : typeof value === "bigint"
-            ? value.toString()
-            : value, 2);
-};
+const IS_GENERATE_ZOD_FILE = (_l = codegenConfig.enableZodGeneration) !== null && _l !== void 0 ? _l : false;
 const generateTypeScriptType = (jsonData, typeName) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // if (!jsonData || Object.keys(jsonData).length === 0) {
         //   throw new Error(`❌ JSON empty or not format: ${typeName}`, jsonData);
         // }
         const jsonInput = (0, quicktype_core_1.jsonInputForTargetLanguage)("typescript");
-        const safeJsonString = safeStringify(jsonData);
+        const safeJsonString = (0, helpers_1.safeStringify)(jsonData);
         yield jsonInput.addSource({
             name: typeName,
             samples: [safeJsonString],
         });
         const inputData = new quicktype_core_1.InputData();
         inputData.addInput(jsonInput);
-        const { lines } = yield (0, quicktype_core_1.quicktype)({
-            inputData,
-            lang: "typescript",
-            rendererOptions: {
+        const { lines } = yield (0, quicktype_core_1.quicktype)(Object.assign({ inputData, lang: "typescript", rendererOptions: {
                 "just-types": "true",
-            },
-        });
+            } }, TYPE_CONFIGS));
+        if (TYPE_CONFIGS === null || TYPE_CONFIGS === void 0 ? void 0 : TYPE_CONFIGS.allPropertiesOptional) {
+            return lines
+                .join("\n")
+                .replace(/:(\s.+)null;/gm, ":$1unknown;")
+                .replace(/:((?!.*(null|unknown).*).*);/g, ":$1 | null;");
+        }
         return lines.join("\n");
     }
     catch (err) {
@@ -173,9 +124,9 @@ const reduceDataFromPostmanData = (postmanDataObj) => {
                     formdata: !lodash_1.default.isEmpty((_a = value.request.body) === null || _a === void 0 ? void 0 : _a.formdata)
                         ? (_b = value.request.body) === null || _b === void 0 ? void 0 : _b.formdata
                         : (_f = (_e = (_d = (_c = value.response) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.originalRequest) === null || _e === void 0 ? void 0 : _e.body) === null || _f === void 0 ? void 0 : _f.formdata,
-                    rawBodyRequest: isValidJSON((_g = value.request.body) === null || _g === void 0 ? void 0 : _g.raw)
+                    rawBodyRequest: (0, helpers_1.isValidJSON)((_g = value.request.body) === null || _g === void 0 ? void 0 : _g.raw)
                         ? (_h = value.request.body) === null || _h === void 0 ? void 0 : _h.raw
-                        : isValidJSON((_m = (_l = (_k = (_j = value.response) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.originalRequest) === null || _l === void 0 ? void 0 : _l.body) === null || _m === void 0 ? void 0 : _m.raw)
+                        : (0, helpers_1.isValidJSON)((_m = (_l = (_k = (_j = value.response) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.originalRequest) === null || _l === void 0 ? void 0 : _l.body) === null || _m === void 0 ? void 0 : _m.raw)
                             ? (_r = (_q = (_p = (_o = value.response) === null || _o === void 0 ? void 0 : _o[0]) === null || _p === void 0 ? void 0 : _p.originalRequest) === null || _q === void 0 ? void 0 : _q.body) === null || _r === void 0 ? void 0 : _r.raw
                             : null,
                     queryParams: value.request.url.query || null,
@@ -202,13 +153,13 @@ const handleApiEndpoints = (postmanData) => {
 const getPlopActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, void 0, function* () {
     const actions = [];
     for (const [entity, apiData] of Object.entries(apiEndpoints)) {
-        const folderPath = path_1.default.join(outputDir, convertToKebabCase(entity));
+        const folderPath = path_1.default.join(outputDir, (0, helpers_1.convertToKebabCase)(entity));
         let apiDataHasItems = false;
         if (!fs_1.default.existsSync(folderPath)) {
             fs_1.default.mkdirSync(folderPath, { recursive: true });
         }
         if (!lodash_1.default.isEmpty(apiData.formdata)) {
-            const requestTypeContent = yield generateTypeScriptType(transformFormDataToPayloadObject(apiData.formdata), `${entity}Request`);
+            const requestTypeContent = yield generateTypeScriptType((0, helpers_1.transformFormDataToPayloadObject)(apiData.formdata), `${entity}Request`);
             fs_1.default.writeFileSync(path_1.default.join(folderPath, REQUEST_TYPE_FILE_NAME), requestTypeContent, BUFFER_ENDCODING);
         }
         if (lodash_1.default.isEmpty(apiData.formdata) && !lodash_1.default.isEmpty(apiData.rawBodyRequest)) {
@@ -216,7 +167,7 @@ const getPlopActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, vo
             fs_1.default.writeFileSync(path_1.default.join(folderPath, REQUEST_TYPE_FILE_NAME), requestTypeContent, BUFFER_ENDCODING);
         }
         if (apiData.queryParams) {
-            const queryParamsTypeContent = yield generateTypeScriptType(transformFormDataToPayloadObject(apiData.queryParams), `${entity}QueryParams`);
+            const queryParamsTypeContent = yield generateTypeScriptType((0, helpers_1.transformFormDataToPayloadObject)(apiData.queryParams), `${entity}QueryParams`);
             fs_1.default.writeFileSync(path_1.default.join(folderPath, QUERY_TYPE_FILE_NAME), queryParamsTypeContent, BUFFER_ENDCODING);
         }
         if (!lodash_1.default.isEmpty(apiData.response)) {
@@ -227,7 +178,7 @@ const getPlopActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, vo
             }
             fs_1.default.writeFileSync(path_1.default.join(folderPath, RESPONSE_TYPE_FILE_NAME), responseTypeContent, BUFFER_ENDCODING);
         }
-        if (apiData.method === "GET") {
+        if (apiData.method === "GET" || apiData.method === "DELETE") {
             if (apiData.queryParams) {
                 actions.push({
                     type: "add",
@@ -236,14 +187,16 @@ const getPlopActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, vo
                     force: true,
                     data: {
                         name: entity,
+                        method: apiData.method,
                         queryParamsType: `${entity}QueryParams`.replace(/[-/:]/g, ""),
                         responseType: !lodash_1.default.isEmpty(apiData.response)
                             ? `${entity}Response`.replace(/[-/:]/g, "")
                             : null,
-                        apiPath: cleanUrl(apiData.url),
+                        apiPath: (0, helpers_1.cleanUrl)(apiData.url),
                         infiniteQueryName: `${entity}Infinite`,
                         hasItems: apiDataHasItems,
                         isGenerateZod: IS_GENERATE_ZOD_FILE,
+                        fetcher: FETCHER_LINK,
                     },
                 });
             }
@@ -255,13 +208,15 @@ const getPlopActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, vo
                     force: true,
                     data: {
                         name: entity,
+                        method: apiData.method,
                         responseType: !lodash_1.default.isEmpty(apiData.response)
                             ? `${entity}Response`.replace(/[-/:]/g, "")
                             : null,
-                        apiPath: cleanUrl(apiData.url),
+                        apiPath: (0, helpers_1.cleanUrl)(apiData.url),
                         infiniteQueryName: `${entity}Infinite`,
                         hasItems: apiDataHasItems,
                         isGenerateZod: IS_GENERATE_ZOD_FILE,
+                        fetcher: FETCHER_LINK,
                     },
                 });
             }
@@ -280,9 +235,10 @@ const getPlopActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, vo
                     responseType: !lodash_1.default.isEmpty(apiData.response)
                         ? `${entity}Response`.replace(/[-/:]/g, "")
                         : null,
-                    apiPath: cleanUrl(apiData.url),
+                    apiPath: (0, helpers_1.cleanUrl)(apiData.url),
                     method: apiData.method,
                     isGenerateZod: IS_GENERATE_ZOD_FILE,
+                    fetcher: FETCHER_LINK,
                 },
             });
         }

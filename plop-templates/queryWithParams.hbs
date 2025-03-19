@@ -4,9 +4,9 @@ import { {{ responseType }} } from "./apiResponses";
 {{/if}}
 import { {{ queryParamsType }} } from "./apiQueries";
 {{#if (and responseType isGenerateZod)}}
-import { {{ zodPascalCase name }}ResponseSchema } from './apiResponses.zod';
+import { {{ zodPascalCase name }}ResponseSchema } from "./apiResponses.zod";
 {{/if}}
-import customFetch from "@/lib/fetch";
+import customFetch from "{{fetcher}}";
 
 type QueryParamsCompatible<T> = {
   [K in keyof T]: string | number | boolean | readonly string[] | readonly number[] | readonly boolean[] | null;
@@ -35,7 +35,7 @@ export const {{ camelCase name }}QueryOptions = (params: {{ queryParamsType }}) 
 
     const resWithParse = 
     {{#if (and responseType isGenerateZod)}}
-    {{ zodPascalCase name }}ResponseSchema.safeParse(res).data;
+    {{ zodPascalCase name }}ResponseSchema.parse(res);
     {{else}}
     res{{#if responseType}} as {{ responseType }}{{/if}};
     {{/if}}
@@ -57,12 +57,12 @@ export const {{ camelCase infiniteQueryName }}InfiniteQueryOptions = (params: {{
 
     const res = await customFetch{{#if responseType}}<{{ responseType }}>{{/if}}({
       url: `{{ apiPath }}` + (queryString ? `?${queryString}` : ''),
-      method: 'GET' 
+      method: '{{ method }}' 
     });
 
     const resWithParse = 
     {{#if (and responseType isGenerateZod)}}
-    {{ zodPascalCase name }}ResponseSchema.safeParse(res).data;
+    {{ zodPascalCase name }}ResponseSchema.parse(res);
     {{else}}
     res{{#if responseType}} as {{ responseType }}{{/if}};
     {{/if}}
