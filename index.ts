@@ -12,7 +12,7 @@ import { exec } from "child_process";
 import _ from "lodash";
 import { z } from "zod";
 
-const configPath = path.resolve(process.cwd(), "codegen.config.js");
+const configPath = path.resolve(process.cwd(), "codegen.config.cjs");
 
 if (!fs.existsSync(configPath)) {
   console.error("❌ Missing codegen.config.js file. Please create one.");
@@ -22,8 +22,9 @@ if (!fs.existsSync(configPath)) {
 let codegenConfig: Record<string, any>;
 
 if (fs.existsSync(configPath)) {
-  if (configPath.endsWith(".js")) {
-    codegenConfig = require(configPath);
+  if (configPath.endsWith(".cjs")) {
+    codegenConfig = require(configPath)?.default || require(configPath);
+    console.log("Da vao day lay js file", require(configPath)?.default);
   } else if (configPath.endsWith(".json")) {
     codegenConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
   } else {
@@ -67,6 +68,10 @@ export type CodegenConfig = z.infer<typeof CodegenConfigSchema>;
 try {
   // Validate config
   const validatedConfig = CodegenConfigSchema.parse(codegenConfig);
+  console.log(
+    "Codegen config 2",
+    path.resolve(process.cwd(), codegenConfig.postmanJsonPath)
+  );
   console.log("✅ Codegen Config Loaded:", validatedConfig);
 } catch (err) {
   console.error("❌ Config error:", err.errors);
@@ -111,7 +116,6 @@ const BUFFER_ENDCODING: BufferEncoding = "utf-8";
 // Common Path Generate Config
 const POSTMAN_JSON_PATH = codegenConfig.postmanJsonPath;
 const GENERATE_PATH = codegenConfig.generateOutputPath;
-
 // Files Name Generate config
 const REQUEST_TYPE_FILE_NAME =
   codegenConfig?.generateFileNames?.requestType ?? "apiRequests.ts";
@@ -125,10 +129,18 @@ const MUTATION_GENERATE_FILE_NAME =
   codegenConfig?.generateFileNames?.mutationOptions ?? "mutation.ts";
 
 // Plop Generate Config
-const PLOP_TEMPLATE_QUERY_PATH = codegenConfig.hbsTemplateQueryPath;
-const PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH =
-  codegenConfig.hbsTemplateQueryWithParamsPath;
-const PLOP_TEMPLATE_MUTATION_PATH = codegenConfig.hbsTemplateMutationPath;
+const PLOP_TEMPLATE_QUERY_PATH = path.resolve(
+  process.cwd(),
+  codegenConfig.hbsTemplateQueryPath
+);
+const PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH = path.resolve(
+  process.cwd(),
+  codegenConfig.hbsTemplateQueryWithParamsPath
+);
+const PLOP_TEMPLATE_MUTATION_PATH = path.resolve(
+  process.cwd(),
+  codegenConfig.hbsTemplateMutationPath
+);
 const PLOP_ACTION_GENERATE_NAME = CONFIG_ARGS_NAME.PLOP_ACTION;
 const PLOP_DESCRIPTION_GENERATE =
   "Generate TanStack QueryOptions, MutationOptions, and QueryParams";

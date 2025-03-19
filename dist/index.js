@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CodegenConfigSchema = void 0;
 exports.default = default_1;
@@ -23,15 +23,16 @@ const p_limit_1 = __importDefault(require("p-limit"));
 const child_process_1 = require("child_process");
 const lodash_1 = __importDefault(require("lodash"));
 const zod_1 = require("zod");
-const configPath = path_1.default.resolve(process.cwd(), "codegen.config.js");
+const configPath = path_1.default.resolve(process.cwd(), "codegen.config.cjs");
 if (!fs_1.default.existsSync(configPath)) {
     console.error("❌ Missing codegen.config.js file. Please create one.");
     process.exit(1);
 }
 let codegenConfig;
 if (fs_1.default.existsSync(configPath)) {
-    if (configPath.endsWith(".js")) {
-        codegenConfig = require(configPath);
+    if (configPath.endsWith(".cjs")) {
+        codegenConfig = ((_a = require(configPath)) === null || _a === void 0 ? void 0 : _a.default) || require(configPath);
+        console.log("Da vao day lay js file", (_b = require(configPath)) === null || _b === void 0 ? void 0 : _b.default);
     }
     else if (configPath.endsWith(".json")) {
         codegenConfig = JSON.parse(fs_1.default.readFileSync(configPath, "utf-8"));
@@ -73,6 +74,7 @@ exports.CodegenConfigSchema = zod_1.z.object({
 try {
     // Validate config
     const validatedConfig = exports.CodegenConfigSchema.parse(codegenConfig);
+    console.log("Codegen config 2", path_1.default.resolve(process.cwd(), codegenConfig.postmanJsonPath));
     console.log("✅ Codegen Config Loaded:", validatedConfig);
 }
 catch (err) {
@@ -85,15 +87,15 @@ const BUFFER_ENDCODING = "utf-8";
 const POSTMAN_JSON_PATH = codegenConfig.postmanJsonPath;
 const GENERATE_PATH = codegenConfig.generateOutputPath;
 // Files Name Generate config
-const REQUEST_TYPE_FILE_NAME = (_b = (_a = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _a === void 0 ? void 0 : _a.requestType) !== null && _b !== void 0 ? _b : "apiRequests.ts";
-const QUERY_TYPE_FILE_NAME = (_d = (_c = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _c === void 0 ? void 0 : _c.queryType) !== null && _d !== void 0 ? _d : "apiQueries.ts";
-const RESPONSE_TYPE_FILE_NAME = (_f = (_e = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _e === void 0 ? void 0 : _e.responseType) !== null && _f !== void 0 ? _f : "apiResponses.ts";
-const QUERY_GENERATE_FILE_NAME = (_h = (_g = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _g === void 0 ? void 0 : _g.queryOptions) !== null && _h !== void 0 ? _h : "query.ts";
-const MUTATION_GENERATE_FILE_NAME = (_k = (_j = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _j === void 0 ? void 0 : _j.mutationOptions) !== null && _k !== void 0 ? _k : "mutation.ts";
+const REQUEST_TYPE_FILE_NAME = (_d = (_c = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _c === void 0 ? void 0 : _c.requestType) !== null && _d !== void 0 ? _d : "apiRequests.ts";
+const QUERY_TYPE_FILE_NAME = (_f = (_e = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _e === void 0 ? void 0 : _e.queryType) !== null && _f !== void 0 ? _f : "apiQueries.ts";
+const RESPONSE_TYPE_FILE_NAME = (_h = (_g = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _g === void 0 ? void 0 : _g.responseType) !== null && _h !== void 0 ? _h : "apiResponses.ts";
+const QUERY_GENERATE_FILE_NAME = (_k = (_j = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _j === void 0 ? void 0 : _j.queryOptions) !== null && _k !== void 0 ? _k : "query.ts";
+const MUTATION_GENERATE_FILE_NAME = (_m = (_l = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _l === void 0 ? void 0 : _l.mutationOptions) !== null && _m !== void 0 ? _m : "mutation.ts";
 // Plop Generate Config
-const PLOP_TEMPLATE_QUERY_PATH = codegenConfig.hbsTemplateQueryPath;
-const PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH = codegenConfig.hbsTemplateQueryWithParamsPath;
-const PLOP_TEMPLATE_MUTATION_PATH = codegenConfig.hbsTemplateMutationPath;
+const PLOP_TEMPLATE_QUERY_PATH = path_1.default.resolve(process.cwd(), codegenConfig.hbsTemplateQueryPath);
+const PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH = path_1.default.resolve(process.cwd(), codegenConfig.hbsTemplateQueryWithParamsPath);
+const PLOP_TEMPLATE_MUTATION_PATH = path_1.default.resolve(process.cwd(), codegenConfig.hbsTemplateMutationPath);
 const PLOP_ACTION_GENERATE_NAME = "generate-queries" /* CONFIG_ARGS_NAME.PLOP_ACTION */;
 const PLOP_DESCRIPTION_GENERATE = "Generate TanStack QueryOptions, MutationOptions, and QueryParams";
 const PROPERTY_API_GET_LIST = codegenConfig.propertyApiGetList;
@@ -101,7 +103,7 @@ const PROPERTY_API_GET_LIST = codegenConfig.propertyApiGetList;
 const LIMIT_PROCESS_GEN_ZOD_FILE = 5;
 // Check Config options
 const IS_MATCH_PLOP_ACTION_ARG = process.argv.includes(`${"generate-queries" /* CONFIG_ARGS_NAME.PLOP_ACTION */}`);
-const IS_GENERATE_ZOD_FILE = (_l = codegenConfig.enableZodGeneration) !== null && _l !== void 0 ? _l : false;
+const IS_GENERATE_ZOD_FILE = (_o = codegenConfig.enableZodGeneration) !== null && _o !== void 0 ? _o : false;
 function isValidJSON(jsonString) {
     try {
         JSON.parse(jsonString);

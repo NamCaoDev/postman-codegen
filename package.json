@@ -1,12 +1,16 @@
 {
-  "name": "@namcao/postman-codegen",
+  "name": "@namcaodev/postman-codegen",
   "author": "Nam Cao Dev",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "license": "MIT",
   "homepage": "https://github.com/NamCaoDev/postman-codegen.git#readme",
   "description": "Auto generate all types, query options, mutation options by postman json",
+  "main": "index.js",
+  "files": [
+    "index.ts"
+  ],
   "bin": {
-    "postman-codegen": "cross-env NODE_OPTIONS='--import tsx' plop --plopfile=index.ts generate-queries"
+    "postman-codegen": "bin/codegen.js"
   },
   "private": false,
   "keywords": [
@@ -40,14 +44,14 @@
     "quicktype": "^23.0.171",
     "quicktype-core": "^23.0.171",
     "ts-node": "^10.9.2",
-    "ts-to-zod": "^3.15.0"
+    "ts-to-zod": "^3.15.0",
+    "plop": "^4.0.1",
+    "tsx": "^4.19.3"
   },
   "devDependencies": {
     "@types/lodash": "^4.17.16",
     "@types/node": "^22.13.10",
     "node-plop": "^0.32.0",
-    "plop": "^4.0.1",
-    "tsx": "^4.19.3",
     "typescript": "~5.8.2"
   }
 }
