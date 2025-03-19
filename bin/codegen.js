@@ -3,7 +3,7 @@
 const { execSync } = require("child_process");
 const path = require("path");
 
-const plopfilePath = path.resolve(__dirname, "../index.ts");
+const plopfilePath = path.resolve(__dirname, "../dist/index.js");
 
 try {
   execSync(

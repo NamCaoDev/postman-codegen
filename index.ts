@@ -10,7 +10,7 @@ import fg from "fast-glob";
 import pLimit from "p-limit";
 import { exec } from "child_process";
 import _ from "lodash";
-import { CodegenConfigSchema } from "./helpers/schema";
+import { CodegenConfigSchema, CodegenConfig } from "./helpers/schema";
 import {
   CONFIG_ARGS_NAME,
   PostmanFormData,
@@ -24,6 +24,14 @@ import {
   cleanUrl,
   safeStringify,
 } from "./helpers";
+
+export type {
+  CONFIG_ARGS_NAME,
+  PostmanFormData,
+  APIData,
+  PlopActionDataParams,
+  CodegenConfig,
+};
 
 const LIBRARY_ROOT = path.resolve(__dirname);
 

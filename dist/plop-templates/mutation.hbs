@@ -1,0 +1,32 @@
+import { MutationOptions } from "@tanstack/react-query";
+{{#if requestType}}
+import { {{ requestType }} } from "./apiRequests";
+{{/if}}
+{{#if responseType}}
+import { {{ responseType }} } from "./apiResponses";
+{{/if}}
+{{#if (and responseType isGenerateZod)}}
+import { {{ zodPascalCase name }}ResponseSchema } from "./apiResponses.zod";
+{{/if}}
+import customFetch from "{{fetcher}}";
+
+export const {{ camelCase name }}MutationOptions = (): MutationOptions<
+  {{#if responseType}}{{ responseType }}{{else}}null{{/if}} {{#if responseType}}| undefined{{/if}}, 
+  unknown,
+  {{ requestType }}
+> => ({
+  mutationFn: async (data) => {
+    const res = await customFetch<{{#if responseType}}{{ responseType }}{{else}}null{{/if}}, {{ requestType }}>({
+      url: '{{ apiPath }}',
+      method: '{{ method }}',
+      body: data, 
+    });
+
+    const resWithParse = {{#if (and responseType isGenerateZod)}}{{ zodPascalCase name }}ResponseSchema.parse(res)
+    {{else}}
+    res{{#if responseType}} as {{ responseType }}{{/if}}
+    {{/if}}
+
+    return resWithParse;
+  },
+});

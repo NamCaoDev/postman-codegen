@@ -5,9 +5,11 @@
   "license": "MIT",
   "homepage": "https://github.com/NamCaoDev/postman-codegen.git#readme",
   "description": "Auto generate all types, query options, mutation options by postman json",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "index.ts"
+    "index.ts",
+    "dist/index.js"
   ],
   "bin": {
     "postman-codegen": "bin/codegen.js"
@@ -30,7 +32,7 @@
     "url": "https://github.com/NamCaoDev/postman-codegen.git/issues"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r plop-templates dist/",
     "prepare": "npm run build",
     "codegen-ts": "cross-env NODE_OPTIONS='--import tsx' plop --plopfile=index.ts generate-queries",
     "codegen": "npx plop --plopfile=dist/index.js generate-queries"

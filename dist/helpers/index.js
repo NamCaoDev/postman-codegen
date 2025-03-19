@@ -26,7 +26,7 @@ function transformFormDataToPayloadObject(arr) {
     }, {});
 }
 const cleanUrl = (url) => {
-    return url.replace(/^[^\/]+\/+/, "/").split("?")[0];
+    return url === null || url === void 0 ? void 0 : url.replace(/^[^\/]+\/+/, "/").split("?")[0];
 };
 exports.cleanUrl = cleanUrl;
 const safeStringify = (json) => {

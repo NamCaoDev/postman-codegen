@@ -103,8 +103,8 @@ const generateTypeScriptType = (jsonData, typeName) => __awaiter(void 0, void 0,
         if (TYPE_CONFIGS === null || TYPE_CONFIGS === void 0 ? void 0 : TYPE_CONFIGS.allPropertiesOptional) {
             return lines
                 .join("\n")
-                .replace(/:(\s.+)null;/gm, ":$1unknown;")
-                .replace(/:((?!.*(null|unknown).*).*);/g, ":$1 | null;");
+                .replace(/:(\s+)null;/gm, ":$1unknown;")
+                .replace(/:((?!.*(null|unknown).*).*);/gm, ":$1 | null;");
         }
         return lines.join("\n");
     }

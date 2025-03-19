@@ -1,5 +1,5 @@
 module.exports = {
-  postmanJsonPath: "examples/pos-postman-collection.json", // Postman Json Path
+  postmanJsonPath: "examples/postman-collection.json", // Postman Json Path
   generateOutputPath: "examples/generated", // Generated Folder path
   propertyApiGetList: "items", // With api get list fields includes list data
   enableZodGeneration: true, // Enable genearate schema

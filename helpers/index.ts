@@ -24,7 +24,7 @@ export function transformFormDataToPayloadObject(arr: PostmanFormData[]) {
 }
 
 export const cleanUrl = (url: string) => {
-  return url.replace(/^[^\/]+\/+/, "/").split("?")[0];
+  return url?.replace(/^[^\/]+\/+/, "/").split("?")[0];
 };
 
 export const safeStringify = (json) => {
