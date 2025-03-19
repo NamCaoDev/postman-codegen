@@ -61,6 +61,8 @@ function cleanGeneratedFolder(generatedFolderPath) {
                 yield fs_extra_1.default.remove(GENERATED_FOLDER);
                 console.log("✅ Cleaned generated folder.");
             }
+            yield fs_extra_1.default.mkdirp(GENERATED_FOLDER);
+            console.log('📂 Created fresh generated folder');
         }
         catch (error) {
             console.error("❌ Error cleaning generated folder:", error);

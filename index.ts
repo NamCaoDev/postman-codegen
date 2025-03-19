@@ -408,6 +408,8 @@ export default async function (plop: PlopTypes.NodePlopAPI) {
 
   const apiEndpoints = handleApiEndpoints(postmanData);
 
+  await cleanGeneratedFolder(GENERATE_PATH);
+
   const actions = await getPlopActions(apiEndpoints, outputDir);
 
   if (IS_GENERATE_ZOD_FILE) {
@@ -422,11 +424,6 @@ export default async function (plop: PlopTypes.NodePlopAPI) {
 
   plop.setHelper("and", function (a, b) {
     return !!(a && b);
-  });
-
-  plop.setActionType("cleanGenerated", async () => {
-    await cleanGeneratedFolder(GENERATE_PATH);
-    return "🧹 Cleaned generated folder.";
   });
 
   plop.setGenerator(PLOP_ACTION_GENERATE_NAME, {

@@ -1,8 +1,8 @@
 # Postman Codegen
 
 ![GitHub license](https://img.shields.io/badge/license-MIT-green.svg)
-![Version](https://img.shields.io/npm/v/my-awesome-library)
-![Build Status](https://img.shields.io/github/actions/workflow/status/myusername/my-awesome-library/ci.yml)
+![Version](https://img.shields.io/npm/v/@namcaodev/postman-codegen)
+![Build Status](https://img.shields.io/github/actions/workflow/status/namcaodev1/@namcaodev/postman-codegen/ci.yml)
 
 Postman Codegen is a tool that helps you automatically generate typescript files, tanstack queries easily from postman json
 

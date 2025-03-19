@@ -293,6 +293,7 @@ function default_1(plop) {
         const outputDir = path_1.default.join(process.cwd(), GENERATE_PATH);
         const postmanData = JSON.parse(fs_1.default.readFileSync(postmanJsonFile, BUFFER_ENDCODING));
         const apiEndpoints = handleApiEndpoints(postmanData);
+        yield (0, helpers_1.cleanGeneratedFolder)(GENERATE_PATH);
         const actions = yield getPlopActions(apiEndpoints, outputDir);
         if (IS_GENERATE_ZOD_FILE) {
             processGenerateFileZodSchema();
@@ -305,10 +306,6 @@ function default_1(plop) {
         plop.setHelper("and", function (a, b) {
             return !!(a && b);
         });
-        plop.setActionType("cleanGenerated", () => __awaiter(this, void 0, void 0, function* () {
-            yield (0, helpers_1.cleanGeneratedFolder)(GENERATE_PATH);
-            return "🧹 Cleaned generated folder.";
-        }));
         plop.setGenerator(PLOP_ACTION_GENERATE_NAME, {
             description: PLOP_DESCRIPTION_GENERATE,
             prompts: [],

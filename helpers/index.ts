@@ -50,6 +50,8 @@ export async function cleanGeneratedFolder(generatedFolderPath: string) {
       await fs.remove(GENERATED_FOLDER);
       console.log("✅ Cleaned generated folder.");
     }
+    await fs.mkdirp(GENERATED_FOLDER);
+    console.log('📂 Created fresh generated folder');
   } catch (error) {
     console.error("❌ Error cleaning generated folder:", error);
   }
