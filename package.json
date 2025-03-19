@@ -1,7 +1,7 @@
 {
   "name": "@namcaodev/postman-codegen",
   "author": "Nam Cao Dev",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "license": "MIT",
   "homepage": "https://github.com/NamCaoDev/postman-codegen.git#readme",
   "description": "Auto generate all types, query options, mutation options by postman json",
