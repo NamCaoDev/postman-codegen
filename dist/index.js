@@ -312,7 +312,7 @@ function default_1(plop) {
         plop.setGenerator(PLOP_ACTION_GENERATE_NAME, {
             description: PLOP_DESCRIPTION_GENERATE,
             prompts: [],
-            actions: [{ type: "cleanGenerated" }, ...actions],
+            actions: actions,
         });
     });
 }

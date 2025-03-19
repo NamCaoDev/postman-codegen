@@ -432,6 +432,6 @@ export default async function (plop: PlopTypes.NodePlopAPI) {
   plop.setGenerator(PLOP_ACTION_GENERATE_NAME, {
     description: PLOP_DESCRIPTION_GENERATE,
     prompts: [],
-    actions: [{ type: "cleanGenerated" }, ...actions],
+    actions: actions,
   });
 }
