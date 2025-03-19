@@ -66,24 +66,6 @@ npx postman-codegen
 
 The generated files will be saved in the folder specified in generateOutputPath (e.g., examples/generated).
 
-## 🔧 Configuration Options
-
-| Option | Type | Description | Required |
-|--------|------|-------------|----------|
-| `postmanJsonPath` | `string` | Path to the Postman collection JSON file | ✅ |
-| `generateOutputPath` | `string` | Path where the generated files will be stored | ✅ |
-| `propertyApiGetList` | `string` | Field in API responses that contains list data | ✅ |
-| `enableZodGeneration` | `boolean` | Enables the generation of Zod schemas | ❌ (default: `false`) |
-| `typeConfigs.allPropertiesOptional` | `boolean` | Marks all properties as optional in generated types | ❌ (default: `false`) |
-| `typeConfigs.inferEnums` | `boolean` | Infers enums from values automatically | ❌ (default: `false`) |
-| `typeConfigs.inferDateTimes` | `boolean` | Infers date-time fields automatically | ❌ (default: `false`) |
-| `fetcher` | `string` | Path to the custom fetcher module | ✅ |
-| `generateFileNames.requestType` | `string` | Filename for API request types | ❌ (default: `apiRequests.ts`) |
-| `generateFileNames.queryType` | `string` | Filename for API query types | ❌ (default: `apiQueries.ts`) |
-| `generateFileNames.responseType` | `string` | Filename for API response types | ❌ (default: `apiResponses.ts`) |
-| `generateFileNames.queryOptions` | `string` | Filename for query options | ❌ (default: `query.ts`) |
-| `generateFileNames.mutationOptions` | `string` | Filename for mutation options | ❌ (default: `mutation.ts`) |
-
 ## ⚠️ Warning
 
 With your custom fetcher you must follow the standard interface and function creation here:
@@ -106,6 +88,24 @@ export default customFetch; // You must be export default it
 ```
 
 You can see an example in the source code here: [fetcher.ts](/helpers/fetcher.ts) and how it is handled here: [queryWithParams.hbs](/plop-templates/queryWithParams.hbs).
+
+## 🔧 Configuration Options
+
+| Option | Type | Description | Required |
+|--------|------|-------------|----------|
+| `postmanJsonPath` | `string` | Path to the Postman collection JSON file | ✅ |
+| `generateOutputPath` | `string` | Path where the generated files will be stored | ✅ |
+| `propertyApiGetList` | `string` | Field in API responses that contains list data | ✅ |
+| `enableZodGeneration` | `boolean` | Enables the generation of Zod schemas | ❌ (default: `false`) |
+| `typeConfigs.allPropertiesOptional` | `boolean` | Marks all properties as optional in generated types | ❌ (default: `false`) |
+| `typeConfigs.inferEnums` | `boolean` | Infers enums from values automatically | ❌ (default: `false`) |
+| `typeConfigs.inferDateTimes` | `boolean` | Infers date-time fields automatically | ❌ (default: `false`) |
+| `fetcher` | `string` | Path to the custom fetcher module | ✅ |
+| `generateFileNames.requestType` | `string` | Filename for API request types | ❌ (default: `apiRequests.ts`) |
+| `generateFileNames.queryType` | `string` | Filename for API query types | ❌ (default: `apiQueries.ts`) |
+| `generateFileNames.responseType` | `string` | Filename for API response types | ❌ (default: `apiResponses.ts`) |
+| `generateFileNames.queryOptions` | `string` | Filename for query options | ❌ (default: `query.ts`) |
+| `generateFileNames.mutationOptions` | `string` | Filename for mutation options | ❌ (default: `mutation.ts`) |
 
 ## 🛠 Contributing
 
