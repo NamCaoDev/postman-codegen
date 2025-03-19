@@ -24,9 +24,9 @@ yarn add @namcaodev/postman-codegen
 
 ## 🚀 Usage
 
-### 1. Create codege.config.cjs
+### 1. Create codegen.config.cjs
 
-To configure the library, create a codege.config.cjs file with the following examples options:
+To configure the library, create a codegen.config.cjs file with the following examples options:
 
 ```js
 /**
