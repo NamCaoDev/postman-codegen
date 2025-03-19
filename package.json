@@ -1,7 +1,7 @@
 {
   "name": "@namcaodev/postman-codegen",
   "author": "Nam Cao Dev",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "homepage": "https://github.com/NamCaoDev/postman-codegen.git#readme",
   "description": "Auto generate all types, query options, mutation options by postman json",
@@ -9,7 +9,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "index.ts",
-    "dist/index.js"
+    "dist"
   ],
   "bin": {
     "postman-codegen": "bin/codegen.js"
