@@ -54,9 +54,7 @@ const safeStringify = (json) => {
 exports.safeStringify = safeStringify;
 function cleanGeneratedFolder(generatedFolderPath) {
     return __awaiter(this, void 0, void 0, function* () {
-        const GENERATED_FOLDER = path_1.default.join(process.cwd(), __dirname, generatedFolderPath);
-        const checkExist = yield fs_extra_1.default.pathExists(GENERATED_FOLDER);
-        console.log('Check exists', checkExist, GENERATED_FOLDER);
+        const GENERATED_FOLDER = path_1.default.join(process.cwd(), generatedFolderPath);
         try {
             if (yield fs_extra_1.default.pathExists(GENERATED_FOLDER)) {
                 console.log("🧹 Cleaning up generated folder...");

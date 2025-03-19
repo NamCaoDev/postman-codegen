@@ -4,7 +4,7 @@
 ![Version](https://img.shields.io/npm/v/my-awesome-library)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/myusername/my-awesome-library/ci.yml)
 
-My Awesome Library là một thư viện tiện ích cho TypeScript/JavaScript giúp đơn giản hóa các tác vụ phổ biến.
+Postman Codegen is a tool that helps you automatically generate typescript files, tanstack queries easily from postman json
 
 ## ✨ Features
 
@@ -26,7 +26,7 @@ yarn add @namcaodev/postman-codegen
 
 ### 1. Create codege.config.cjs
 
-To configure the library, create a codege.config.cjs file with the following options:
+To configure the library, create a codege.config.cjs file with the following examples options:
 
 ```js
 /**
