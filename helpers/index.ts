@@ -1,3 +1,5 @@
+import fs from "fs-extra";
+import path from "path";
 import { PostmanFormData } from "./types";
 
 export function isValidJSON(jsonString) {
@@ -39,3 +41,16 @@ export const safeStringify = (json) => {
     2
   );
 };
+
+export async function cleanGeneratedFolder(generatedFolderPath: string) {
+  const GENERATED_FOLDER = path.join(process.cwd(), generatedFolderPath);
+  try {
+    if (await fs.pathExists(GENERATED_FOLDER)) {
+      console.log("🧹 Cleaning up generated folder...");
+      await fs.remove(GENERATED_FOLDER);
+      console.log("✅ Cleaned generated folder.");
+    }
+  } catch (error) {
+    console.error("❌ Error cleaning generated folder:", error);
+  }
+}

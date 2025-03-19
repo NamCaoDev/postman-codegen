@@ -1,3 +1,9 @@
+/**
+ * @namcaodev/postman-codegen configuration.
+ *
+ * @type {import("@namcaodev/postman-codegen").CodegenConfig}
+ */
+
 module.exports = {
   postmanJsonPath: "examples/postman-collection.json", // Postman Json Path
   generateOutputPath: "examples/generated", // Generated Folder path

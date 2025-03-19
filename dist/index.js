@@ -305,10 +305,14 @@ function default_1(plop) {
         plop.setHelper("and", function (a, b) {
             return !!(a && b);
         });
+        plop.setActionType("cleanGenerated", () => __awaiter(this, void 0, void 0, function* () {
+            yield (0, helpers_1.cleanGeneratedFolder)(GENERATE_PATH);
+            return "🧹 Cleaned generated folder.";
+        }));
         plop.setGenerator(PLOP_ACTION_GENERATE_NAME, {
             description: PLOP_DESCRIPTION_GENERATE,
             prompts: [],
-            actions: actions,
+            actions: [{ type: "cleanGenerated" }, ...actions],
         });
     });
 }

@@ -23,6 +23,7 @@ import {
   transformFormDataToPayloadObject,
   cleanUrl,
   safeStringify,
+  cleanGeneratedFolder,
 } from "./helpers";
 
 export type {
@@ -423,9 +424,14 @@ export default async function (plop: PlopTypes.NodePlopAPI) {
     return !!(a && b);
   });
 
+  plop.setActionType("cleanGenerated", async () => {
+    await cleanGeneratedFolder(GENERATE_PATH);
+    return "🧹 Cleaned generated folder.";
+  });
+
   plop.setGenerator(PLOP_ACTION_GENERATE_NAME, {
     description: PLOP_DESCRIPTION_GENERATE,
     prompts: [],
-    actions: actions,
+    actions: [{ type: "cleanGenerated" }, ...actions],
   });
 }

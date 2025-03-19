@@ -1,7 +1,7 @@
 {
   "name": "@namcaodev/postman-codegen",
   "author": "Nam Cao Dev",
-  "version": "0.1.2",
+  "version": "0.2.1",
   "license": "MIT",
   "homepage": "https://github.com/NamCaoDev/postman-codegen.git#readme",
   "description": "Auto generate all types, query options, mutation options by postman json",
@@ -17,12 +17,13 @@
   "private": false,
   "keywords": [
     "codegen",
-    "tanstack-query",
+    "tanstack-query-generate",
     "postman-json",
     "auto-generate-type",
     "plop",
     "quicktype",
-    "typescript"
+    "typescript",
+    "postman"
   ],
   "repository": {
     "url": "git+https://github.com/NamCaoDev/postman-codegen.git",
@@ -41,13 +42,13 @@
     "@turbo/gen": "^2.4.4",
     "cross-env": "^7.0.3",
     "fast-glob": "^3.3.3",
+    "fs-extra": "^11.3.0",
     "lodash": "^4.17.21",
     "p-limit": "^6.2.0",
-    "quicktype": "^23.0.171",
-    "quicktype-core": "^23.0.171",
-    "ts-node": "^10.9.2",
-    "ts-to-zod": "^3.15.0",
     "plop": "^4.0.1",
+    "query-string": "^9.1.1",
+    "quicktype-core": "^23.0.171",
+    "ts-to-zod": "^3.15.0",
     "tsx": "^4.19.3"
   },
   "devDependencies": {
