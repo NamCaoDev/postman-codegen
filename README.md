@@ -26,7 +26,7 @@ yarn add @namcaodev/postman-codegen
 
 ### 1. Create codegen.config.cjs
 
-To configure the library, create a codegen.config.cjs file with the following examples options:
+To configure the library, create a codegen.config.cjs file in your root project with the following examples options:
 
 ```js
 /**
@@ -83,6 +83,29 @@ The generated files will be saved in the folder specified in generateOutputPath 
 | `generateFileNames.responseType` | `string` | Filename for API response types | ❌ (default: `apiResponses.ts`) |
 | `generateFileNames.queryOptions` | `string` | Filename for query options | ❌ (default: `query.ts`) |
 | `generateFileNames.mutationOptions` | `string` | Filename for mutation options | ❌ (default: `mutation.ts`) |
+
+## ⚠️ Warning
+
+With your custom fetcher you must follow the standard interface and function creation here:
+
+```ts
+export interface CustomFetchParams<TBody> {
+  url: string;
+  method: string;
+  options?: RequestInit;
+  body?: TBody;
+}
+
+export const customFetch = async <TResponseData = undefined, TBody = undefined>(
+  params: CustomFetchParams<TBody>
+): Promise<TResponseData> => {
+  // You will handle your fetch here
+}
+
+export default customFetch; // You must be export default it
+```
+
+You can see an example in the source code here: [fetcher.ts](/helpers/fetcher.ts) and how it is handled here: [queryWithParams.hbs](/plop-templates/queryWithParams.hbs).
 
 ## 🛠 Contributing
 
