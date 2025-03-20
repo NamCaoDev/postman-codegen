@@ -66,6 +66,8 @@ npx postman-codegen
 
 The generated files will be saved in the folder specified in generateOutputPath (e.g., [generated](/examples/generated)).
 
+### 3. Usage in React Component
+
 Next, easy usage in your React Component with full type safe power [demo.tsx](/examples/demo.tsx)
 
 ```tsx
