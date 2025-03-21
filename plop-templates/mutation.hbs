@@ -12,11 +12,11 @@ import customFetch from "{{fetcher}}";
 
 export const {{ camelCase name }}MutationOptions = (): MutationOptions<
   {{#if responseType}}{{ responseType }}{{else}}null{{/if}} {{#if responseType}}| undefined{{/if}}, 
-  unknown,
+  unknown{{#if requestType}},{{/if}}
   {{ requestType }}
 > => ({
   mutationFn: async (data) => {
-    const res = await customFetch<{{#if responseType}}{{ responseType }}{{else}}null{{/if}}, {{ requestType }}>({
+    const res = await customFetch<{{#if responseType}}{{ responseType }}{{else}}null{{/if}}{{#if requestType}},{{/if}} {{ requestType }}>({
       url: '{{ apiPath }}',
       method: '{{ method }}',
       body: data, 

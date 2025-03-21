@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.safeStringify = exports.cleanUrl = exports.convertToKebabCase = void 0;
+exports.safeStringify = exports.cleanSpecialCharacter = exports.cleanUrl = exports.convertToKebabCase = void 0;
 exports.isValidJSON = isValidJSON;
 exports.transformFormDataToPayloadObject = transformFormDataToPayloadObject;
+exports.replaceQuicktypeSpecialWords = replaceQuicktypeSpecialWords;
 exports.cleanGeneratedFolder = cleanGeneratedFolder;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
@@ -31,6 +32,7 @@ const convertToKebabCase = (str) => {
     return str
         .replace(/([a-z])([A-Z])/g, "$1-$2")
         .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
+        .replace(/\s+/g, "-")
         .toLowerCase();
 };
 exports.convertToKebabCase = convertToKebabCase;
@@ -40,10 +42,26 @@ function transformFormDataToPayloadObject(arr) {
         return acc;
     }, {});
 }
+function toPascalCase(str) {
+    var _a, _b, _c;
+    const specialWords = new Set(["api", "id", "http", "url", "json", "xml", "html", "sql"]);
+    return (_c = (_b = (_a = str === null || str === void 0 ? void 0 : str.split(/\s+/)) === null || _a === void 0 ? void 0 : _a.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())) === null || _b === void 0 ? void 0 : _b.map(word => {
+        let lower = word.toLowerCase();
+        return specialWords.has(lower) ? lower.toUpperCase() : word;
+    })) === null || _c === void 0 ? void 0 : _c.join('');
+}
 const cleanUrl = (url) => {
     return url === null || url === void 0 ? void 0 : url.replace(/^[^\/]+\/+/, "/").split("?")[0];
 };
 exports.cleanUrl = cleanUrl;
+function replaceQuicktypeSpecialWords(str) {
+    return str.replace(/\b(api|id|http|url|json|xml|html|sql)\b/gi, (match) => match.toUpperCase());
+}
+const cleanSpecialCharacter = (text, options) => {
+    const cleanText = text === null || text === void 0 ? void 0 : text.replace(/[^a-zA-Z0-9\s]/g, (options === null || options === void 0 ? void 0 : options.transformSpace) ? ' ' : '');
+    return (options === null || options === void 0 ? void 0 : options.pascalCase) ? toPascalCase(cleanText) : cleanText;
+};
+exports.cleanSpecialCharacter = cleanSpecialCharacter;
 const safeStringify = (json) => {
     return JSON.stringify(json, (_, value) => typeof value === "undefined"
         ? null

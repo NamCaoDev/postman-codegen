@@ -1,17 +1,17 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  newmanGeTrequestQueryOptions,
-  newmanGeTrequestQueryKeys,
-} from "./generated/newman:ge-trequest/query";
+  newmanGetRequestQueryOptions,
+  newmanGetRequestQueryKeys,
+} from "./generated/newman-get-request/query";
 
 const DemoCodegen = () => {
   const query = useQuery({
-    ...newmanGeTrequestQueryOptions({
+    ...newmanGetRequestQueryOptions({
       source: "test",
     }),
   });
-  const queryKeys = newmanGeTrequestQueryKeys({ source: "test" });
+  const queryKeys = newmanGetRequestQueryKeys({ source: "test" });
   console.log("Data response", query);
   console.log("Query keys", queryKeys);
   return <div>DemoCodegen</div>;

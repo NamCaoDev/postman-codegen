@@ -1,5 +1,5 @@
 import querystring from 'query-string';
-import { NewmanGETrequestQueryParams } from "./apiQueries";
+import { NewmanGetRequestQueryParams } from "./apiQueries";
 import customFetch from "../../../helpers/fetcher";
 
 type QueryParamsCompatible<T> = {
@@ -17,8 +17,8 @@ function convertQueryParams<T extends object>(params: T): QueryParamsCompatible<
 
 
 
-export const newmanGeTrequestQueryOptions = (params: NewmanGETrequestQueryParams) => ({
-  queryKey: ['Newman:GETrequest', params],
+export const newmanGetRequestQueryOptions = (params: NewmanGetRequestQueryParams) => ({
+  queryKey: ['NewmanGetRequest', params],
   queryFn: async () => {
     const queryString = querystring.stringify(convertQueryParams(params));
 
@@ -34,7 +34,7 @@ export const newmanGeTrequestQueryOptions = (params: NewmanGETrequestQueryParams
   },
 });
 
-export const newmanGeTrequestQueryKeys = (params: NewmanGETrequestQueryParams) => {
-  return ['Newman:GETrequest', params];
+export const newmanGetRequestQueryKeys = (params: NewmanGetRequestQueryParams) => {
+  return ['NewmanGetRequest', params];
 } 
 

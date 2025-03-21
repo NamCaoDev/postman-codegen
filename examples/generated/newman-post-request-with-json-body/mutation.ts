@@ -1,14 +1,14 @@
 import { MutationOptions } from "@tanstack/react-query";
-import { NewmanPOSTrequestwithJSONbodyRequest } from "./apiRequests";
+import { NewmanPostRequestWithJSONBodyRequest } from "./apiRequests";
 import customFetch from "../../../helpers/fetcher";
 
-export const newmanPosTrequestwithJsoNbodyMutationOptions = (): MutationOptions<
+export const newmanPostRequestWithJsonBodyMutationOptions = (): MutationOptions<
   null , 
   unknown,
-  NewmanPOSTrequestwithJSONbodyRequest
+  NewmanPostRequestWithJSONBodyRequest
 > => ({
   mutationFn: async (data) => {
-    const res = await customFetch<null, NewmanPOSTrequestwithJSONbodyRequest>({
+    const res = await customFetch<null, NewmanPostRequestWithJSONBodyRequest>({
       url: '',
       method: 'POST',
       body: data, 

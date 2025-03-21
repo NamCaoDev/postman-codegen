@@ -24,6 +24,7 @@ import {
   cleanUrl,
   safeStringify,
   cleanGeneratedFolder,
+  cleanSpecialCharacter,
 } from "./helpers";
 
 export type {
@@ -165,7 +166,7 @@ const generateTypeScriptType = async (
 
 const reduceDataFromPostmanData = (postmanDataObj) => {
   if (_.isObject(postmanDataObj)) {
-    postmanDataObj[postmanDataObj["name"].replace(/[\s-]/g, "")] = {
+    postmanDataObj[postmanDataObj["name"]] = {
       ...postmanDataObj,
     };
     return {
@@ -214,7 +215,8 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
   for (const [entity, apiData] of Object.entries(
     apiEndpoints as Record<string, APIData>
   )) {
-    const folderPath = path.join(outputDir, convertToKebabCase(entity));
+    const entityTextValid = cleanSpecialCharacter(entity, { transformSpace: true, pascalCase: true });
+    const folderPath = path.join(outputDir, convertToKebabCase(entityTextValid));
     let apiDataHasItems = false;
 
     if (!fs.existsSync(folderPath)) {
@@ -224,7 +226,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
     if (!_.isEmpty(apiData.formdata)) {
       const requestTypeContent = await generateTypeScriptType(
         transformFormDataToPayloadObject(apiData.formdata as PostmanFormData[]),
-        `${entity}Request`
+        `${entityTextValid}Request`
       );
       fs.writeFileSync(
         path.join(folderPath, REQUEST_TYPE_FILE_NAME),
@@ -236,7 +238,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
     if (_.isEmpty(apiData.formdata) && !_.isEmpty(apiData.rawBodyRequest)) {
       const requestTypeContent = await generateTypeScriptType(
         JSON.parse(apiData.rawBodyRequest as string),
-        `${entity}Request`
+        `${entityTextValid}Request`
       );
       fs.writeFileSync(
         path.join(folderPath, REQUEST_TYPE_FILE_NAME),
@@ -250,7 +252,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
         transformFormDataToPayloadObject(
           apiData.queryParams as PostmanFormData[]
         ),
-        `${entity}QueryParams`
+        `${entityTextValid}QueryParams`
       );
       fs.writeFileSync(
         path.join(folderPath, QUERY_TYPE_FILE_NAME),
@@ -262,7 +264,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
     if (!_.isEmpty(apiData.response)) {
       const responseTypeContent = await generateTypeScriptType(
         JSON.parse(apiData.response as string),
-        `${entity}Response`
+        `${entityTextValid}Response`
       );
       if (
         typeof responseTypeContent === "string" &&
@@ -285,14 +287,14 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
           templateFile: PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH,
           force: true,
           data: {
-            name: entity,
+            name: entityTextValid,
             method: apiData.method,
-            queryParamsType: `${entity}QueryParams`.replace(/[-/:]/g, ""),
+            queryParamsType: `${entityTextValid}QueryParams`,
             responseType: !_.isEmpty(apiData.response)
-              ? `${entity}Response`.replace(/[-/:]/g, "")
+              ? `${entityTextValid}Response`
               : null,
             apiPath: cleanUrl(apiData.url),
-            infiniteQueryName: `${entity}Infinite`,
+            infiniteQueryName: `${entityTextValid}Infinite`,
             hasItems: apiDataHasItems,
             isGenerateZod: IS_GENERATE_ZOD_FILE,
             fetcher: FETCHER_LINK,
@@ -305,13 +307,13 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
           templateFile: PLOP_TEMPLATE_QUERY_PATH,
           force: true,
           data: {
-            name: entity,
+            name: entityTextValid,
             method: apiData.method,
             responseType: !_.isEmpty(apiData.response)
-              ? `${entity}Response`.replace(/[-/:]/g, "")
+              ? `${entityTextValid}Response`
               : null,
             apiPath: cleanUrl(apiData.url),
-            infiniteQueryName: `${entity}Infinite`,
+            infiniteQueryName: `${entityTextValid}Infinite`,
             hasItems: apiDataHasItems,
             isGenerateZod: IS_GENERATE_ZOD_FILE,
             fetcher: FETCHER_LINK,
@@ -327,13 +329,13 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
         templateFile: PLOP_TEMPLATE_MUTATION_PATH,
         force: true,
         data: {
-          name: entity,
+          name: entityTextValid,
           requestType:
             _.isEmpty(apiData.rawBodyRequest) && _.isEmpty(apiData.formdata)
               ? null
-              : `${entity}Request`.replace(/[-/:]/g, ""),
+              : `${entityTextValid}Request`,
           responseType: !_.isEmpty(apiData.response)
-            ? `${entity}Response`.replace(/[-/:]/g, "")
+            ? `${entityTextValid}Response`
             : null,
           apiPath: cleanUrl(apiData.url),
           method: apiData.method,
@@ -417,8 +419,7 @@ export default async function (plop: PlopTypes.NodePlopAPI) {
   }
 
   plop.setHelper("zodPascalCase", (text) => {
-    return text
-      .replace(/[-/:]/g, "")
+    return cleanSpecialCharacter(text)
       .replace(/^([A-Z])/, (match) => match.toLowerCase());
   });
 

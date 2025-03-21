@@ -115,7 +115,7 @@ const generateTypeScriptType = (jsonData, typeName) => __awaiter(void 0, void 0,
 });
 const reduceDataFromPostmanData = (postmanDataObj) => {
     if (lodash_1.default.isObject(postmanDataObj)) {
-        postmanDataObj[postmanDataObj["name"].replace(/[\s-]/g, "")] = Object.assign({}, postmanDataObj);
+        postmanDataObj[postmanDataObj["name"]] = Object.assign({}, postmanDataObj);
         return Object.assign({}, Object.entries(postmanDataObj).reduce((acc, [key, value]) => {
             var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
             if (value.request) {
@@ -153,25 +153,26 @@ const handleApiEndpoints = (postmanData) => {
 const getPlopActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, void 0, function* () {
     const actions = [];
     for (const [entity, apiData] of Object.entries(apiEndpoints)) {
-        const folderPath = path_1.default.join(outputDir, (0, helpers_1.convertToKebabCase)(entity));
+        const entityTextValid = (0, helpers_1.cleanSpecialCharacter)(entity, { transformSpace: true, pascalCase: true });
+        const folderPath = path_1.default.join(outputDir, (0, helpers_1.convertToKebabCase)(entityTextValid));
         let apiDataHasItems = false;
         if (!fs_1.default.existsSync(folderPath)) {
             fs_1.default.mkdirSync(folderPath, { recursive: true });
         }
         if (!lodash_1.default.isEmpty(apiData.formdata)) {
-            const requestTypeContent = yield generateTypeScriptType((0, helpers_1.transformFormDataToPayloadObject)(apiData.formdata), `${entity}Request`);
+            const requestTypeContent = yield generateTypeScriptType((0, helpers_1.transformFormDataToPayloadObject)(apiData.formdata), `${entityTextValid}Request`);
             fs_1.default.writeFileSync(path_1.default.join(folderPath, REQUEST_TYPE_FILE_NAME), requestTypeContent, BUFFER_ENDCODING);
         }
         if (lodash_1.default.isEmpty(apiData.formdata) && !lodash_1.default.isEmpty(apiData.rawBodyRequest)) {
-            const requestTypeContent = yield generateTypeScriptType(JSON.parse(apiData.rawBodyRequest), `${entity}Request`);
+            const requestTypeContent = yield generateTypeScriptType(JSON.parse(apiData.rawBodyRequest), `${entityTextValid}Request`);
             fs_1.default.writeFileSync(path_1.default.join(folderPath, REQUEST_TYPE_FILE_NAME), requestTypeContent, BUFFER_ENDCODING);
         }
         if (apiData.queryParams) {
-            const queryParamsTypeContent = yield generateTypeScriptType((0, helpers_1.transformFormDataToPayloadObject)(apiData.queryParams), `${entity}QueryParams`);
+            const queryParamsTypeContent = yield generateTypeScriptType((0, helpers_1.transformFormDataToPayloadObject)(apiData.queryParams), `${entityTextValid}QueryParams`);
             fs_1.default.writeFileSync(path_1.default.join(folderPath, QUERY_TYPE_FILE_NAME), queryParamsTypeContent, BUFFER_ENDCODING);
         }
         if (!lodash_1.default.isEmpty(apiData.response)) {
-            const responseTypeContent = yield generateTypeScriptType(JSON.parse(apiData.response), `${entity}Response`);
+            const responseTypeContent = yield generateTypeScriptType(JSON.parse(apiData.response), `${entityTextValid}Response`);
             if (typeof responseTypeContent === "string" &&
                 responseTypeContent.includes(`${PROPERTY_API_GET_LIST}:`)) {
                 apiDataHasItems = true;
@@ -186,14 +187,14 @@ const getPlopActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, vo
                     templateFile: PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH,
                     force: true,
                     data: {
-                        name: entity,
+                        name: entityTextValid,
                         method: apiData.method,
-                        queryParamsType: `${entity}QueryParams`.replace(/[-/:]/g, ""),
+                        queryParamsType: `${entityTextValid}QueryParams`,
                         responseType: !lodash_1.default.isEmpty(apiData.response)
-                            ? `${entity}Response`.replace(/[-/:]/g, "")
+                            ? `${entityTextValid}Response`
                             : null,
                         apiPath: (0, helpers_1.cleanUrl)(apiData.url),
-                        infiniteQueryName: `${entity}Infinite`,
+                        infiniteQueryName: `${entityTextValid}Infinite`,
                         hasItems: apiDataHasItems,
                         isGenerateZod: IS_GENERATE_ZOD_FILE,
                         fetcher: FETCHER_LINK,
@@ -207,13 +208,13 @@ const getPlopActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, vo
                     templateFile: PLOP_TEMPLATE_QUERY_PATH,
                     force: true,
                     data: {
-                        name: entity,
+                        name: entityTextValid,
                         method: apiData.method,
                         responseType: !lodash_1.default.isEmpty(apiData.response)
-                            ? `${entity}Response`.replace(/[-/:]/g, "")
+                            ? `${entityTextValid}Response`
                             : null,
                         apiPath: (0, helpers_1.cleanUrl)(apiData.url),
-                        infiniteQueryName: `${entity}Infinite`,
+                        infiniteQueryName: `${entityTextValid}Infinite`,
                         hasItems: apiDataHasItems,
                         isGenerateZod: IS_GENERATE_ZOD_FILE,
                         fetcher: FETCHER_LINK,
@@ -228,12 +229,12 @@ const getPlopActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, vo
                 templateFile: PLOP_TEMPLATE_MUTATION_PATH,
                 force: true,
                 data: {
-                    name: entity,
+                    name: entityTextValid,
                     requestType: lodash_1.default.isEmpty(apiData.rawBodyRequest) && lodash_1.default.isEmpty(apiData.formdata)
                         ? null
-                        : `${entity}Request`.replace(/[-/:]/g, ""),
+                        : `${entityTextValid}Request`,
                     responseType: !lodash_1.default.isEmpty(apiData.response)
-                        ? `${entity}Response`.replace(/[-/:]/g, "")
+                        ? `${entityTextValid}Response`
                         : null,
                     apiPath: (0, helpers_1.cleanUrl)(apiData.url),
                     method: apiData.method,
@@ -299,8 +300,7 @@ function default_1(plop) {
             processGenerateFileZodSchema();
         }
         plop.setHelper("zodPascalCase", (text) => {
-            return text
-                .replace(/[-/:]/g, "")
+            return (0, helpers_1.cleanSpecialCharacter)(text)
                 .replace(/^([A-Z])/, (match) => match.toLowerCase());
         });
         plop.setHelper("and", function (a, b) {
