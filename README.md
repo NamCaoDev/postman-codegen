@@ -97,7 +97,7 @@ const DemoCodegen = () => {
 
 export default DemoCodegen;
 ```
-📌 **Notes:**
+⚠️ Warning
 
 With your custom fetcher you must follow the standard interface and function creation here:
 
@@ -134,7 +134,7 @@ You can see an example in the source code here: [fetcher.ts](/helpers/fetcher.ts
 | `typeConfigs.allPropertiesOptional` | `boolean` | ❌ No (Default: `false`) | If `true`, all properties will be optional. |
 | `typeConfigs.inferEnums` | `boolean` | ❌ No (Default: `false`) | If `true`, automatically infers enums from API responses. |
 | `typeConfigs.inferDateTimes` | `boolean` | ❌ No (Default: `false`) | If `true`, automatically detects datetime fields in responses. |
-| `fetcher` | `string` | ❌ No | Path to a custom fetcher function. |
+| `fetcher` | `string` | ✅ Yes | Path to a custom fetcher function. |
 | `generateFileNames.requestType` | `string` | ❌ No (Default: `apiRequests.ts`) | Filename for API request definitions. |
 | `generateFileNames.queryType` | `string` | ❌ No (Default: `apiQueries.ts`) | Filename for API queries. |
 | `generateFileNames.responseType` | `string` | ❌ No (Default: `apiResponses.ts`) | Filename for API response types. |
@@ -143,6 +143,7 @@ You can see an example in the source code here: [fetcher.ts](/helpers/fetcher.ts
 
 📌 **Notes:**  
 - If `generateMode = 'fetch'`, **both** `postmanFetchConfigs.collectionId` and `postmanFetchConfigs.collectionAccessKey` are **required**.  
+
 - If `generateMode = 'json_file'`, **postmanJsonPath** is **required**.  
 
 ## 🛠 Contributing
