@@ -307,7 +307,10 @@ function default_1(plop) {
         else {
             postmanData = JSON.parse(fs_1.default.readFileSync(postmanJsonFile, BUFFER_ENDCODING));
         }
-        console.log('Postman daa', postmanData);
+        if (!postmanData) {
+            console.error(`❌ Postman Data wrong, Please try again!`);
+            return;
+        }
         const apiEndpoints = handleApiEndpoints(postmanData);
         yield (0, helpers_1.cleanGeneratedFolder)(GENERATE_PATH);
         const actions = yield getPlopActions(apiEndpoints, outputDir);

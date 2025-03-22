@@ -5,7 +5,7 @@
  */
 
 module.exports = {
-  generateMode: 'json_file', // 'fetch' | 'json_file'
+  generateMode: 'fetch', // 'fetch' | 'json_file'
   postmanFetchConfigs: {
     collectionId: '<YOUR_COLLECTION_ID>',
     collectionAccessKey: '<YOUR_COLLECTION_ACCESS_KEY>'

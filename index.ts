@@ -425,7 +425,12 @@ export default async function (plop: PlopTypes.NodePlopAPI) {
     );
   }
 
-  console.log('Postman daa', postmanData);
+  if(!postmanData) {
+    console.error(
+      `❌ Postman Data wrong, Please try again!`
+    );
+    return;
+  }
 
   const apiEndpoints = handleApiEndpoints(postmanData);
 
