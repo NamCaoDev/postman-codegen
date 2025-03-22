@@ -1,6 +1,21 @@
 import { z } from "zod";
-export declare const CodegenConfigSchema: z.ZodObject<{
-    postmanJsonPath: z.ZodString;
+export declare enum GenerateModeEnum {
+    Fetch = "fetch",
+    JsonFile = "json_file"
+}
+export declare const CodegenConfigSchema: z.ZodEffects<z.ZodObject<{
+    generateMode: z.ZodNativeEnum<typeof GenerateModeEnum>;
+    postmanFetchConfigs: z.ZodOptional<z.ZodObject<{
+        collectionId: z.ZodString;
+        collectionAccessKey: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        collectionId?: string;
+        collectionAccessKey?: string;
+    }, {
+        collectionId?: string;
+        collectionAccessKey?: string;
+    }>>;
+    postmanJsonPath: z.ZodOptional<z.ZodString>;
     generateOutputPath: z.ZodString;
     propertyApiGetList: z.ZodString;
     enableZodGeneration: z.ZodOptional<z.ZodBoolean>;
@@ -38,6 +53,11 @@ export declare const CodegenConfigSchema: z.ZodObject<{
         mutationOptions?: string;
     }>>;
 }, "strip", z.ZodTypeAny, {
+    generateMode?: GenerateModeEnum;
+    postmanFetchConfigs?: {
+        collectionId?: string;
+        collectionAccessKey?: string;
+    };
     postmanJsonPath?: string;
     generateOutputPath?: string;
     propertyApiGetList?: string;
@@ -56,6 +76,57 @@ export declare const CodegenConfigSchema: z.ZodObject<{
         mutationOptions?: string;
     };
 }, {
+    generateMode?: GenerateModeEnum;
+    postmanFetchConfigs?: {
+        collectionId?: string;
+        collectionAccessKey?: string;
+    };
+    postmanJsonPath?: string;
+    generateOutputPath?: string;
+    propertyApiGetList?: string;
+    enableZodGeneration?: boolean;
+    fetcher?: string;
+    typeConfigs?: {
+        allPropertiesOptional?: boolean;
+        inferEnums?: boolean;
+        inferDateTimes?: boolean;
+    };
+    generateFileNames?: {
+        requestType?: string;
+        queryType?: string;
+        responseType?: string;
+        queryOptions?: string;
+        mutationOptions?: string;
+    };
+}>, {
+    generateMode?: GenerateModeEnum;
+    postmanFetchConfigs?: {
+        collectionId?: string;
+        collectionAccessKey?: string;
+    };
+    postmanJsonPath?: string;
+    generateOutputPath?: string;
+    propertyApiGetList?: string;
+    enableZodGeneration?: boolean;
+    fetcher?: string;
+    typeConfigs?: {
+        allPropertiesOptional?: boolean;
+        inferEnums?: boolean;
+        inferDateTimes?: boolean;
+    };
+    generateFileNames?: {
+        requestType?: string;
+        queryType?: string;
+        responseType?: string;
+        queryOptions?: string;
+        mutationOptions?: string;
+    };
+}, {
+    generateMode?: GenerateModeEnum;
+    postmanFetchConfigs?: {
+        collectionId?: string;
+        collectionAccessKey?: string;
+    };
     postmanJsonPath?: string;
     generateOutputPath?: string;
     propertyApiGetList?: string;

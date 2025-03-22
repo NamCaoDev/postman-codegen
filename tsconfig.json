@@ -7,7 +7,8 @@
     "declaration": true,
     "strict": false,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "checkJs": true
   },
   "include": ["index.ts", "plop-templates"]
 }

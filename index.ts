@@ -10,13 +10,14 @@ import fg from "fast-glob";
 import pLimit from "p-limit";
 import { exec } from "child_process";
 import _ from "lodash";
-import { CodegenConfigSchema, CodegenConfig } from "./helpers/schema";
+import { CodegenConfigSchema, CodegenConfig, GenerateModeEnum } from "./helpers/schema";
 import {
   CONFIG_ARGS_NAME,
   PostmanFormData,
   APIData,
   PlopActionDataParams,
 } from "./helpers/types";
+import { fetchPostmanApiDocument } from './helpers/network';
 import {
   isValidJSON,
   convertToKebabCase,
@@ -33,6 +34,7 @@ export type {
   APIData,
   PlopActionDataParams,
   CodegenConfig,
+  GenerateModeEnum
 };
 
 const LIBRARY_ROOT = path.resolve(__dirname);
@@ -76,8 +78,16 @@ try {
 // Base config Nodejs
 const BUFFER_ENDCODING: BufferEncoding = "utf-8";
 
+// Generate Mode
+const GENERATE_MODE = codegenConfig.generateMode;
+
 // Common Path Generate Config
-const POSTMAN_JSON_PATH = codegenConfig.postmanJsonPath;
+const POSTMAN_JSON_PATH = codegenConfig?.postmanJsonPath;
+const POSTMAN_FETCH_CONFIGS = {
+    collectionId: codegenConfig?.postmanFetchConfigs?.collectionId,
+    collectionAccessKey: codegenConfig?.postmanFetchConfigs?.collectionAccessKey
+}
+
 const GENERATE_PATH = codegenConfig.generateOutputPath;
 // Files Name Generate config
 const REQUEST_TYPE_FILE_NAME =
@@ -401,12 +411,21 @@ export default async function (plop: PlopTypes.NodePlopAPI) {
     );
     return;
   }
-  const postmanJsonFile = path.join(process.cwd(), POSTMAN_JSON_PATH);
+  const postmanJsonFile = GENERATE_MODE === GenerateModeEnum.JsonFile ? path.join(process.cwd(), POSTMAN_JSON_PATH) : null;
   const outputDir = path.join(process.cwd(), GENERATE_PATH);
+  
+  let postmanData;
 
-  const postmanData = JSON.parse(
-    fs.readFileSync(postmanJsonFile, BUFFER_ENDCODING)
-  );
+  if(GENERATE_MODE === GenerateModeEnum.Fetch) {
+    const postmanDataInfo = await fetchPostmanApiDocument({collectionId: POSTMAN_FETCH_CONFIGS.collectionId, collectionAccessKey: POSTMAN_FETCH_CONFIGS.collectionAccessKey});
+    postmanData = postmanDataInfo?.collection;
+  } else {
+    postmanData = JSON.parse(
+      fs.readFileSync(postmanJsonFile, BUFFER_ENDCODING)
+    );
+  }
+
+  console.log('Postman daa', postmanData);
 
   const apiEndpoints = handleApiEndpoints(postmanData);
 

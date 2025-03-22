@@ -19,6 +19,7 @@ exports.replaceQuicktypeSpecialWords = replaceQuicktypeSpecialWords;
 exports.cleanGeneratedFolder = cleanGeneratedFolder;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
+const constants_1 = require("./constants");
 function isValidJSON(jsonString) {
     try {
         JSON.parse(jsonString);
@@ -44,7 +45,7 @@ function transformFormDataToPayloadObject(arr) {
 }
 function toPascalCase(str) {
     var _a, _b, _c;
-    const specialWords = new Set(["api", "id", "http", "url", "json", "xml", "html", "sql"]);
+    const specialWords = new Set(constants_1.QUICK_TYPE_SPECIAL_CHARACTERS);
     return (_c = (_b = (_a = str === null || str === void 0 ? void 0 : str.split(/\s+/)) === null || _a === void 0 ? void 0 : _a.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())) === null || _b === void 0 ? void 0 : _b.map(word => {
         let lower = word.toLowerCase();
         return specialWords.has(lower) ? lower.toUpperCase() : word;

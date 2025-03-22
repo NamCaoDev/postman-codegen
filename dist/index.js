@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
 const fs_1 = __importDefault(require("fs"));
@@ -22,6 +22,7 @@ const p_limit_1 = __importDefault(require("p-limit"));
 const child_process_1 = require("child_process");
 const lodash_1 = __importDefault(require("lodash"));
 const schema_1 = require("./helpers/schema");
+const network_1 = require("./helpers/network");
 const helpers_1 = require("./helpers");
 const LIBRARY_ROOT = path_1.default.resolve(__dirname);
 const configPath = path_1.default.resolve(process.cwd(), "codegen.config.cjs");
@@ -60,15 +61,21 @@ catch (err) {
 }
 // Base config Nodejs
 const BUFFER_ENDCODING = "utf-8";
+// Generate Mode
+const GENERATE_MODE = codegenConfig.generateMode;
 // Common Path Generate Config
-const POSTMAN_JSON_PATH = codegenConfig.postmanJsonPath;
+const POSTMAN_JSON_PATH = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.postmanJsonPath;
+const POSTMAN_FETCH_CONFIGS = {
+    collectionId: (_a = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.postmanFetchConfigs) === null || _a === void 0 ? void 0 : _a.collectionId,
+    collectionAccessKey: (_b = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.postmanFetchConfigs) === null || _b === void 0 ? void 0 : _b.collectionAccessKey
+};
 const GENERATE_PATH = codegenConfig.generateOutputPath;
 // Files Name Generate config
-const REQUEST_TYPE_FILE_NAME = (_b = (_a = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _a === void 0 ? void 0 : _a.requestType) !== null && _b !== void 0 ? _b : "apiRequests.ts";
-const QUERY_TYPE_FILE_NAME = (_d = (_c = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _c === void 0 ? void 0 : _c.queryType) !== null && _d !== void 0 ? _d : "apiQueries.ts";
-const RESPONSE_TYPE_FILE_NAME = (_f = (_e = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _e === void 0 ? void 0 : _e.responseType) !== null && _f !== void 0 ? _f : "apiResponses.ts";
-const QUERY_GENERATE_FILE_NAME = (_h = (_g = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _g === void 0 ? void 0 : _g.queryOptions) !== null && _h !== void 0 ? _h : "query.ts";
-const MUTATION_GENERATE_FILE_NAME = (_k = (_j = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _j === void 0 ? void 0 : _j.mutationOptions) !== null && _k !== void 0 ? _k : "mutation.ts";
+const REQUEST_TYPE_FILE_NAME = (_d = (_c = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _c === void 0 ? void 0 : _c.requestType) !== null && _d !== void 0 ? _d : "apiRequests.ts";
+const QUERY_TYPE_FILE_NAME = (_f = (_e = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _e === void 0 ? void 0 : _e.queryType) !== null && _f !== void 0 ? _f : "apiQueries.ts";
+const RESPONSE_TYPE_FILE_NAME = (_h = (_g = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _g === void 0 ? void 0 : _g.responseType) !== null && _h !== void 0 ? _h : "apiResponses.ts";
+const QUERY_GENERATE_FILE_NAME = (_k = (_j = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _j === void 0 ? void 0 : _j.queryOptions) !== null && _k !== void 0 ? _k : "query.ts";
+const MUTATION_GENERATE_FILE_NAME = (_m = (_l = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.generateFileNames) === null || _l === void 0 ? void 0 : _l.mutationOptions) !== null && _m !== void 0 ? _m : "mutation.ts";
 // Types Configs
 const TYPE_CONFIGS = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.typeConfigs;
 // Plop Generate Config
@@ -83,7 +90,7 @@ const FETCHER_LINK = codegenConfig.fetcher;
 const LIMIT_PROCESS_GEN_ZOD_FILE = 5;
 // Check Config options
 const IS_MATCH_PLOP_ACTION_ARG = process.argv.includes(`${"generate-queries" /* CONFIG_ARGS_NAME.PLOP_ACTION */}`);
-const IS_GENERATE_ZOD_FILE = (_l = codegenConfig.enableZodGeneration) !== null && _l !== void 0 ? _l : false;
+const IS_GENERATE_ZOD_FILE = (_o = codegenConfig.enableZodGeneration) !== null && _o !== void 0 ? _o : false;
 const generateTypeScriptType = (jsonData, typeName) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // if (!jsonData || Object.keys(jsonData).length === 0) {
@@ -290,9 +297,17 @@ function default_1(plop) {
             console.error(`❌ Plop action not correct! Let's try --${"generate-queries" /* CONFIG_ARGS_NAME.PLOP_ACTION */}`);
             return;
         }
-        const postmanJsonFile = path_1.default.join(process.cwd(), POSTMAN_JSON_PATH);
+        const postmanJsonFile = GENERATE_MODE === schema_1.GenerateModeEnum.JsonFile ? path_1.default.join(process.cwd(), POSTMAN_JSON_PATH) : null;
         const outputDir = path_1.default.join(process.cwd(), GENERATE_PATH);
-        const postmanData = JSON.parse(fs_1.default.readFileSync(postmanJsonFile, BUFFER_ENDCODING));
+        let postmanData;
+        if (GENERATE_MODE === schema_1.GenerateModeEnum.Fetch) {
+            const postmanDataInfo = yield (0, network_1.fetchPostmanApiDocument)({ collectionId: POSTMAN_FETCH_CONFIGS.collectionId, collectionAccessKey: POSTMAN_FETCH_CONFIGS.collectionAccessKey });
+            postmanData = postmanDataInfo === null || postmanDataInfo === void 0 ? void 0 : postmanDataInfo.collection;
+        }
+        else {
+            postmanData = JSON.parse(fs_1.default.readFileSync(postmanJsonFile, BUFFER_ENDCODING));
+        }
+        console.log('Postman daa', postmanData);
         const apiEndpoints = handleApiEndpoints(postmanData);
         yield (0, helpers_1.cleanGeneratedFolder)(GENERATE_PATH);
         const actions = yield getPlopActions(apiEndpoints, outputDir);

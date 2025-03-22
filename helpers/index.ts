@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import { PostmanFormData } from "./types";
+import { QUICK_TYPE_SPECIAL_CHARACTERS } from './constants';
 
 export function isValidJSON(jsonString) {
   try {
@@ -27,7 +28,7 @@ export function transformFormDataToPayloadObject(arr: PostmanFormData[]) {
 }
 
 function toPascalCase(str: string) {
-  const specialWords = new Set(["api", "id", "http", "url", "json", "xml", "html", "sql"])
+  const specialWords = new Set(QUICK_TYPE_SPECIAL_CHARACTERS)
   return str
       ?.split(/\s+/)
       ?.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
