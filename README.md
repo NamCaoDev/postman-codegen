@@ -146,6 +146,8 @@ You can see an example in the source code here: [fetcher.ts](/helpers/fetcher.ts
 
 - If `generateMode = 'json_file'`, **postmanJsonPath** is **required**.  
 
+- ⚡ **Using `generateMode = 'fetch'` allows you to sync updates from your backend in Postman documents instantly.**  
+
 ## 🛠 Contributing
 
 If you want to contribute, please fork the repository and submit a pull request!
