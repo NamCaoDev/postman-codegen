@@ -36,7 +36,8 @@ To configure the library, create a codegen.config.cjs file in your root project 
  */
 
 module.exports = {
-  generateMode: 'fetch', // 'fetch' | 'json_file'
+  generateType: 'seperate', // 'seperate' | 'combine',
+  generateMode: 'json_file', // 'fetch' | 'json_file'
   postmanFetchConfigs: {
     collectionId: '<YOUR_COLLECTION_ID>',
     collectionAccessKey: '<YOUR_COLLECTION_ACCESS_KEY>'
