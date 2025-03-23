@@ -36,7 +36,8 @@ export type {
   APIData,
   PlopActionDataParams,
   CodegenConfig,
-  GenerateModeEnum
+  GenerateModeEnum,
+  GenerateTypeEnum
 };
 
 const LIBRARY_ROOT = path.resolve(__dirname);
