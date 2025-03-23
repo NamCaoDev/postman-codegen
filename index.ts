@@ -7,17 +7,8 @@ import {
   jsonInputForTargetLanguage,
 } from "quicktype-core";
 import fg from "fast-glob";
-import pLimit from "p-limit";
-import { exec } from "child_process";
 import _ from "lodash";
-import { CodegenConfigSchema, CodegenConfig, GenerateModeEnum } from "./helpers/schema";
-import {
-  CONFIG_ARGS_NAME,
-  PostmanFormData,
-  APIData,
-  PlopActionDataParams,
-} from "./helpers/types";
-import { fetchPostmanApiDocument } from './helpers/network';
+import { fetchPostmanApiDocument } from './utils/network';
 import {
   isValidJSON,
   convertToKebabCase,
@@ -26,7 +17,18 @@ import {
   safeStringify,
   cleanGeneratedFolder,
   cleanSpecialCharacter,
-} from "./helpers";
+  CONFIG_ARGS_NAME,
+  PlopActionDataParams,
+  PostmanFormData,
+  APIData,
+  CodegenConfigSchema,
+  CodegenConfig,
+  GenerateModeEnum,
+  GenerateTypeEnum,
+  runTsToZod,
+  replaceTypeDuplicateString,
+  fixDuplicateInterfacesBetweenStrings
+} from "./utils";
 
 export type {
   CONFIG_ARGS_NAME,
@@ -34,7 +36,8 @@ export type {
   APIData,
   PlopActionDataParams,
   CodegenConfig,
-  GenerateModeEnum
+  GenerateModeEnum,
+  GenerateTypeEnum
 };
 
 const LIBRARY_ROOT = path.resolve(__dirname);
@@ -79,6 +82,7 @@ try {
 const BUFFER_ENDCODING: BufferEncoding = "utf-8";
 
 // Generate Mode
+const GENERATE_TYPE = codegenConfig.generateType ?? GenerateTypeEnum.Seperate;
 const GENERATE_MODE = codegenConfig.generateMode;
 
 // Common Path Generate Config
@@ -100,10 +104,17 @@ const QUERY_GENERATE_FILE_NAME =
   codegenConfig?.generateFileNames?.queryOptions ?? "query.ts";
 const MUTATION_GENERATE_FILE_NAME =
   codegenConfig?.generateFileNames?.mutationOptions ?? "mutation.ts";
+const COMBINE_TYPE_FILE_NAME = "types.gen.ts";
+const COMBINE_QUERY_FILE_NAME = "tanstack-query.gen.ts";
 // Types Configs
 const TYPE_CONFIGS = codegenConfig?.typeConfigs;
 
 // Plop Generate Config
+const PLOP_TEMPLATE_FOLDER_PATH = path.join(
+  LIBRARY_ROOT,
+  "/plop-templates"
+);
+
 const PLOP_TEMPLATE_QUERY_PATH = path.join(
   LIBRARY_ROOT,
   "/plop-templates/query.hbs"
@@ -116,14 +127,16 @@ const PLOP_TEMPLATE_MUTATION_PATH = path.join(
   LIBRARY_ROOT,
   "/plop-templates/mutation.hbs"
 );
+
+const PLOP_TEMPLATE_COMBINE_QUERY_PATH = path.join(
+  LIBRARY_ROOT,
+  "/plop-templates/combineQuery.hbs"
+);
 const PLOP_ACTION_GENERATE_NAME = CONFIG_ARGS_NAME.PLOP_ACTION;
 const PLOP_DESCRIPTION_GENERATE =
   "Generate TanStack QueryOptions, MutationOptions, and QueryParams";
 const PROPERTY_API_GET_LIST = codegenConfig.propertyApiGetList;
 const FETCHER_LINK = codegenConfig.fetcher;
-
-// Generate zod schema config
-const LIMIT_PROCESS_GEN_ZOD_FILE = 5;
 
 // Check Config options
 const IS_MATCH_PLOP_ACTION_ARG = process.argv.includes(
@@ -136,9 +149,6 @@ const generateTypeScriptType = async (
   typeName: string
 ): Promise<string | undefined> => {
   try {
-    // if (!jsonData || Object.keys(jsonData).length === 0) {
-    //   throw new Error(`❌ JSON empty or not format: ${typeName}`, jsonData);
-    // }
     const jsonInput = jsonInputForTargetLanguage("typescript");
 
     const safeJsonString = safeStringify(jsonData);
@@ -220,7 +230,7 @@ const handleApiEndpoints = (postmanData) => {
   return endpoints;
 };
 
-const getPlopActions = async (apiEndpoints, outputDir) => {
+const getPlopSeperateActions = async (apiEndpoints, outputDir) => {
   const actions: PlopTypes.ActionType[] = [];
   for (const [entity, apiData] of Object.entries(
     apiEndpoints as Record<string, APIData>
@@ -297,6 +307,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
           templateFile: PLOP_TEMPLATE_QUERY_WITH_PARAMS_PATH,
           force: true,
           data: {
+            generateType: GENERATE_TYPE,
             name: entityTextValid,
             method: apiData.method,
             queryParamsType: `${entityTextValid}QueryParams`,
@@ -317,6 +328,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
           templateFile: PLOP_TEMPLATE_QUERY_PATH,
           force: true,
           data: {
+            generateType: GENERATE_TYPE,
             name: entityTextValid,
             method: apiData.method,
             responseType: !_.isEmpty(apiData.response)
@@ -339,6 +351,7 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
         templateFile: PLOP_TEMPLATE_MUTATION_PATH,
         force: true,
         data: {
+          generateType: GENERATE_TYPE,
           name: entityTextValid,
           requestType:
             _.isEmpty(apiData.rawBodyRequest) && _.isEmpty(apiData.formdata)
@@ -359,36 +372,155 @@ const getPlopActions = async (apiEndpoints, outputDir) => {
   return actions;
 };
 
-const limitProcess = pLimit(LIMIT_PROCESS_GEN_ZOD_FILE); // Limit process
+const getPlopCombineActions = async (apiEndpoints, outputDir) => {
+  const actions: PlopTypes.ActionType[] = [];
+  const actionsData: PlopActionDataParams[] = [];
+  const folderPath = path.join(outputDir);
+  let allTypeContent = '';
+  for (const [entity, apiData] of Object.entries(
+    apiEndpoints as Record<string, APIData>
+  )) {
+    const entityTextValid = cleanSpecialCharacter(entity, { transformSpace: true, pascalCase: true });
+    let apiDataHasItems = false;
 
-const runTsToZod = async (files: string[]) => {
-  const tasks = files.map((file) =>
-    limitProcess(() => {
-      return new Promise((resolve, reject) => {
-        const outputFile = file.replace(".ts", ".zod.ts");
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
 
-        exec(`npx ts-to-zod ${file} ${outputFile}`, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`❌ Error converting ${file}:\n${stderr}`);
-            reject(error);
-          } else {
-            console.log(`✅ Converted ${file} to ${outputFile}`);
-            resolve(stdout);
-          }
-        });
-      });
-    })
+    if (!_.isEmpty(apiData.formdata)) {
+      const requestTypeContent = await generateTypeScriptType(
+        transformFormDataToPayloadObject(apiData.formdata as PostmanFormData[]),
+        `${entityTextValid}Request`
+      );
+      const requestTypeContentValid = fixDuplicateInterfacesBetweenStrings(allTypeContent, requestTypeContent, entityTextValid)
+      allTypeContent = allTypeContent.concat('\n', requestTypeContentValid);
+    }
+
+    if (_.isEmpty(apiData.formdata) && !_.isEmpty(apiData.rawBodyRequest)) {
+      const requestTypeContent = await generateTypeScriptType(
+        JSON.parse(apiData.rawBodyRequest as string),
+        `${entityTextValid}Request`
+      );
+      const requestTypeContentValid = fixDuplicateInterfacesBetweenStrings(allTypeContent, requestTypeContent, entityTextValid)
+      allTypeContent = allTypeContent.concat('\n', requestTypeContentValid);
+    }
+
+    if (apiData.queryParams) {
+      const queryParamsTypeContent = await generateTypeScriptType(
+        transformFormDataToPayloadObject(
+          apiData.queryParams as PostmanFormData[]
+        ),
+        `${entityTextValid}QueryParams`
+      );
+      const queryParamsTypeContentValid = fixDuplicateInterfacesBetweenStrings(allTypeContent, queryParamsTypeContent, entityTextValid)
+      allTypeContent = allTypeContent.concat('\n', queryParamsTypeContentValid);
+    }
+
+    if (!_.isEmpty(apiData.response)) {
+      const responseTypeContent = await generateTypeScriptType(
+        JSON.parse(apiData.response as string),
+        `${entityTextValid}Response`
+      );
+      if (
+        typeof responseTypeContent === "string" &&
+        responseTypeContent.includes(`${PROPERTY_API_GET_LIST}:`)
+      ) {
+        apiDataHasItems = true;
+      }
+      const responseTypeContentValid = fixDuplicateInterfacesBetweenStrings(allTypeContent, responseTypeContent, entityTextValid)
+      allTypeContent = allTypeContent.concat('\n', responseTypeContentValid);
+    }
+
+    if (apiData.method === "GET" || apiData.method === "DELETE") {
+      if (apiData.queryParams) {
+        actionsData.push({
+            generateType: GENERATE_TYPE,
+            name: entityTextValid,
+            method: apiData.method,
+            queryParamsType: `${entityTextValid}QueryParams`,
+            responseType: !_.isEmpty(apiData.response)
+              ? `${entityTextValid}Response`
+              : null,
+            apiPath: cleanUrl(apiData.url),
+            infiniteQueryName: `${entityTextValid}Infinite`,
+            hasItems: apiDataHasItems,
+            isGenerateZod: IS_GENERATE_ZOD_FILE,
+            fetcher: FETCHER_LINK,
+            template: 'queryWithParams'
+          } as PlopActionDataParams,
+        );
+      } else {
+        actionsData.push( {
+            generateType: GENERATE_TYPE,
+            name: entityTextValid,
+            method: apiData.method,
+            responseType: !_.isEmpty(apiData.response)
+              ? `${entityTextValid}Response`
+              : null,
+            apiPath: cleanUrl(apiData.url),
+            infiniteQueryName: `${entityTextValid}Infinite`,
+            hasItems: apiDataHasItems,
+            isGenerateZod: IS_GENERATE_ZOD_FILE,
+            fetcher: FETCHER_LINK,
+            template: 'query'
+          } as PlopActionDataParams,
+        );
+      }
+    }
+
+    if (apiData.method === "POST" || apiData.method === "PATCH") {
+      actionsData.push({
+          generateType: GENERATE_TYPE,
+          name: entityTextValid,
+          requestType:
+            _.isEmpty(apiData.rawBodyRequest) && _.isEmpty(apiData.formdata)
+              ? null
+              : `${entityTextValid}Request`,
+          responseType: !_.isEmpty(apiData.response)
+            ? `${entityTextValid}Response`
+            : null,
+          apiPath: cleanUrl(apiData.url),
+          method: apiData.method,
+          isGenerateZod: IS_GENERATE_ZOD_FILE,
+          fetcher: FETCHER_LINK,
+          template: 'mutation'
+        } as PlopActionDataParams,
+      );
+    }
+  }
+
+  // write all typescipt in a file
+  fs.writeFileSync(
+    path.join(folderPath, COMBINE_TYPE_FILE_NAME),
+    replaceTypeDuplicateString(allTypeContent),
+    BUFFER_ENDCODING
   );
 
-  await Promise.allSettled(tasks); // Run all task with limit
+  // combine tanstack query a action
+  actions.push({
+    type: "add",
+    path: `${folderPath}/${COMBINE_QUERY_FILE_NAME}`,
+    templateFile: PLOP_TEMPLATE_COMBINE_QUERY_PATH,
+    force: true,
+    data: {
+      genList: actionsData,
+      fetcher: FETCHER_LINK,
+    }
+  })
+
+  return actions;
 };
 
-const processGenerateFileZodSchema = async () => {
-  const files = await fg([
+const processGenerateFileZodSchema = async (generateType: GenerateTypeEnum) => {
+  const arrFiles = generateType === GenerateTypeEnum.Combine ? 
+  [`${GENERATE_PATH}/${COMBINE_TYPE_FILE_NAME}`] 
+  : 
+  [
     `${GENERATE_PATH}/**/${REQUEST_TYPE_FILE_NAME}`,
     `${GENERATE_PATH}/**/${QUERY_TYPE_FILE_NAME}`,
     `${GENERATE_PATH}/**/${RESPONSE_TYPE_FILE_NAME}`,
-  ]);
+  ]
+  const files = await fg(arrFiles);
 
   if (files.length === 0) {
     console.log("⚠️ File do not exact");
@@ -436,10 +568,10 @@ export default async function (plop: PlopTypes.NodePlopAPI) {
 
   await cleanGeneratedFolder(GENERATE_PATH);
 
-  const actions = await getPlopActions(apiEndpoints, outputDir);
+  const actions = GENERATE_TYPE === GenerateTypeEnum.Combine ? await getPlopCombineActions(apiEndpoints, outputDir) : await getPlopSeperateActions(apiEndpoints, outputDir);
 
   if (IS_GENERATE_ZOD_FILE) {
-    processGenerateFileZodSchema();
+    processGenerateFileZodSchema(GENERATE_TYPE);
   }
 
   plop.setHelper("zodPascalCase", (text) => {
@@ -447,8 +579,48 @@ export default async function (plop: PlopTypes.NodePlopAPI) {
       .replace(/^([A-Z])/, (match) => match.toLowerCase());
   });
 
+  plop.setHelper("eq", (a, b) => a === b);
+
   plop.setHelper("and", function (a, b) {
     return !!(a && b);
+  });
+
+  plop.setHelper("or", (a, b) => a || b);
+
+  plop.setHelper("isEqualOrMoreThanOne", (list, options) => {
+    return list.length >= 1 ? options.fn(this) : options.inverse(this);
+  });
+
+  plop.setHelper("filter", (list, key) => {
+    if (!Array.isArray(list)) return [];
+    return list.filter((item) => item[key]); 
+  });
+  
+  plop.setHelper("join", (list, separator, key) => {
+    if (!Array.isArray(list)) return "";
+    const filtered = list.map((item) => item[key]).filter(Boolean); 
+    return filtered.length > 0 ? filtered.join(separator) : "";
+  });
+
+  plop.setHelper("with", (value, options) => {
+    if (Array.isArray(value) && value.length > 0) {
+      return options.fn(value);
+    }
+    return "";
+  });
+
+  plop.setHelper("joinZod", (list, separator, key, conditionKey, conditionValue, transformSuffix) => {
+    return list
+        .filter((item) => item[conditionKey] === conditionValue && item[key])
+        .map((item) => plop.getHelper("zodPascalCase")(item[key]) + transformSuffix)
+        .join(separator);
+  });
+
+  const partialsDir = PLOP_TEMPLATE_FOLDER_PATH;
+  fs.readdirSync(partialsDir).forEach((file) => {
+      const partialName = path.basename(file, ".hbs");
+      const partialContent = fs.readFileSync(path.join(partialsDir, file), "utf8");
+      plop.setPartial(partialName, partialContent);
   });
 
   plop.setGenerator(PLOP_ACTION_GENERATE_NAME, {

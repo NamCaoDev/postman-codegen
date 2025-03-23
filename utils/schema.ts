@@ -1,4 +1,10 @@
+import { generate } from "quicktype-core/dist/MarkovChain";
 import { z } from "zod";
+
+export enum GenerateTypeEnum {
+  Seperate = 'seperate',
+  Combine = 'combine'
+}
 
 export enum GenerateModeEnum {
   Fetch = 'fetch',
@@ -6,6 +12,7 @@ export enum GenerateModeEnum {
 }
 
 export const CodegenConfigSchema = z.object({
+  generateType: z.nativeEnum(GenerateTypeEnum).default(GenerateTypeEnum.Seperate),
   generateMode: z.nativeEnum(GenerateModeEnum), // Fetch | JsonFile
   postmanFetchConfigs: z.object({
     collectionId: z.string(),

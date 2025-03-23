@@ -1,3 +1,4 @@
+{{#if (eq generateType "seperate")}}
 import querystring from 'query-string';
 {{#if responseType}}
 import { {{ responseType }} } from "./apiResponses";
@@ -22,6 +23,7 @@ function convertQueryParams<T extends object>(params: T): QueryParamsCompatible<
 }
 
 {{#if hasItems}}type ResponseCollectionData<T = unknown> = T & { _meta?: { currentPage?: number } };{{/if}}
+{{/if}}
 
 export const {{ camelCase name }}QueryOptions = (params: {{ queryParamsType }}) => ({
   queryKey: ['{{ name }}', params],

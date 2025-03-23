@@ -70,6 +70,56 @@ export const safeStringify = (json) => {
   );
 };
 
+export const replaceTypeDuplicateString = (content: string): string => {
+  const interfaceMap = {};
+  let newContent = content;
+  newContent = newContent.replace(/export interface (\w+)/g, (match, typeName) => {
+  if (!interfaceMap[typeName]) {
+    interfaceMap[typeName] = 1;
+    return match; 
+  }
+  
+  const newName = `${typeName}${interfaceMap[typeName]++}`;
+  
+  newContent = newContent.replace(new RegExp(`\\b${typeName}\\b`, "g"), newName);
+  
+  return `export interface ${newName}`;
+  });
+  return newContent;
+}
+
+export function fixDuplicateInterfacesBetweenStrings(baseContent, newContent, entityName) {
+  const typeRegex = /export (interface|enum) (\w+)/g;
+  const baseTypes = new Set();
+
+  let match;
+  while ((match = typeRegex.exec(baseContent)) !== null) {
+    baseTypes.add(match[2]);
+  }
+
+  let updatedContent = newContent;
+  const typeMap = {};
+  let counter = 1;
+
+  updatedContent = updatedContent.replace(typeRegex, (match, typeKind, typeName) => {
+    if (!baseTypes.has(typeName)) {
+      return match;
+    }
+
+    const newName = `${entityName}${typeName}${counter++}`;
+    typeMap[typeName] = newName;
+
+    return `export ${typeKind} ${newName}`;
+  });
+
+  for (const [oldName, newName] of Object.entries(typeMap)) {
+    const usageRegex = new RegExp(`\\b${oldName}\\b`, "g"); 
+    updatedContent = updatedContent.replace(usageRegex, newName);
+  }
+
+  return updatedContent;
+}
+
 export async function cleanGeneratedFolder(generatedFolderPath: string) {
   const GENERATED_FOLDER = path.join(process.cwd(), generatedFolderPath);
   try {

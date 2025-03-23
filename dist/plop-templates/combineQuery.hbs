@@ -1,0 +1,38 @@
+import { MutationOptions } from "@tanstack/react-query";
+import querystring from 'query-string';
+import customFetch from "{{fetcher}}";
+{{#if genList}}
+import { 
+  {{#if (filter genList "responseType")}}{{join (filter genList "responseType") ", " "responseType"}}, {{/if}}
+  {{#if (filter genList "queryParamsType")}}{{join (filter genList "queryParamsType") ", " "queryParamsType"}}, {{/if}}
+  {{#if (filter genList "requestType")}}{{join (filter genList "requestType") ", " "requestType"}}, {{/if}}
+} from "./types.gen";
+{{/if}}
+{{#if (filter genList "responseType")}}
+import { {{joinZod genList ", " "responseType" "isGenerateZod" true "Schema" }} } from "./types.gen.zod";
+{{/if}}
+
+type QueryParamsCompatible<T> = {
+  [K in keyof T]: string | number | boolean | readonly string[] | readonly number[] | readonly boolean[] | null;
+};
+
+type ResponseCollectionData<T = unknown> = T & { _meta?: { currentPage?: number } };
+
+function convertQueryParams<T extends object>(params: T): QueryParamsCompatible<T> {
+  return Object.fromEntries(
+    Object.entries(params).map(([key, value]) => [
+      key,
+      value instanceof Date ? value.toISOString() : value,
+    ])
+  ) as QueryParamsCompatible<T>;
+}
+
+{{#each genList}}
+{{#if (eq template "query")}}
+{{> query }}
+{{else if (eq template "queryWithParams")}}
+{{> queryWithParams }}
+{{else if (eq template "mutation")}}
+{{> mutation }}
+{{/if}}
+{{/each}}

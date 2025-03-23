@@ -1,6 +1,6 @@
 import { MutationOptions } from "@tanstack/react-query";
 import { NewmanPostRequestWithJSONBodyRequest } from "./apiRequests";
-import customFetch from "../../../helpers/fetcher";
+import customFetch from "../../utils/fetcher";
 
 export const newmanPostRequestWithJsonBodyMutationOptions = (): MutationOptions<
   null , 

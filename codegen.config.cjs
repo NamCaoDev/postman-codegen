@@ -5,7 +5,8 @@
  */
 
 module.exports = {
-  generateMode: 'fetch', // 'fetch' | 'json_file'
+  generateType: 'seperate', // 'seperate' | 'combine',
+  generateMode: 'json_file', // 'fetch' | 'json_file'
   postmanFetchConfigs: {
     collectionId: '<YOUR_COLLECTION_ID>',
     collectionAccessKey: '<YOUR_COLLECTION_ACCESS_KEY>'
@@ -19,7 +20,7 @@ module.exports = {
     inferEnums: true,
     inferDateTimes: true,
   },
-  fetcher: "../../../helpers/fetcher",
+  fetcher: "../../utils/fetcher",
   generateFileNames: {
     requestType: "apiRequests.ts",
     queryType: "apiQueries.ts",

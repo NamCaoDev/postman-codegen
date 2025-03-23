@@ -36,7 +36,8 @@ To configure the library, create a codegen.config.cjs file in your root project 
  */
 
 module.exports = {
-  generateMode: 'fetch', // 'fetch' | 'json_file'
+  generateType: 'seperate', // 'seperate' | 'combine',
+  generateMode: 'json_file', // 'fetch' | 'json_file'
   postmanFetchConfigs: {
     collectionId: '<YOUR_COLLECTION_ID>',
     collectionAccessKey: '<YOUR_COLLECTION_ACCESS_KEY>'
@@ -124,6 +125,7 @@ You can see an example in the source code here: [fetcher.ts](/helpers/fetcher.ts
 
 | Option | Type | Required | Description |
 |--------|------|----------|-------------|
+| `generateType` | `'seperate' \| 'combine'` | ❌ No (Default: `seperate`) | `'separate'`: Generates separate folders/files for each API path. `'combine'`: Merges all types and queries into a single file. |
 | `generateMode` | `'fetch' \| 'json_file'` | ✅ Yes | Determines how data is retrieved from Postman. `'fetch'` fetches the collection via API, while `'json_file'` uses an exported JSON file. |
 | `postmanFetchConfigs.collectionId` | `string` | 🔹 If `generateMode` = `'fetch'` | The Postman Collection ID to fetch. |
 | `postmanFetchConfigs.collectionAccessKey` | `string` | 🔹 If `generateMode` = `'fetch'` | The API Key required to access the collection from Postman API. |
