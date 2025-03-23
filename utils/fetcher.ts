@@ -44,7 +44,7 @@ const BASE_HEADERS = {
   },
 };
 
-const serializeBody = <TBody extends Record<string, unknown>>(body: TBody) =>
+const serializeBody = <TBody>(body: TBody) =>
   JSON.stringify(body);
 
 const getUrl = (url: string) => {

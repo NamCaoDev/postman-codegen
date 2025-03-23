@@ -1,3 +1,5 @@
+import { GenerateTypeEnum } from "./schema";
+
 // Config ARGS
 export const enum CONFIG_ARGS_NAME {
   PLOP_ACTION = "generate-queries",
@@ -20,6 +22,7 @@ export interface APIData {
 }
 
 export interface PlopActionDataParams {
+  generateType: GenerateTypeEnum;
   name: string;
   queryParamsType?: string;
   responseType: string;
@@ -29,4 +32,5 @@ export interface PlopActionDataParams {
   method: string;
   isGenerateZod?: boolean;
   fetcher: string;
+  template?: 'query' | 'queryWithParams' | 'mutation'
 }

@@ -1,6 +1,6 @@
 import querystring from 'query-string';
 import { NewmanGetRequestQueryParams } from "./apiQueries";
-import customFetch from "../../../helpers/fetcher";
+import customFetch from "../../utils/fetcher";
 
 type QueryParamsCompatible<T> = {
   [K in keyof T]: string | number | boolean | readonly string[] | readonly number[] | readonly boolean[] | null;
