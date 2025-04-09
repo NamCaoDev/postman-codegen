@@ -65,7 +65,7 @@ const GENERATE_MODE = codegenConfig.generateMode;
 const POSTMAN_JSON_PATH = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.postmanJsonPath;
 const POSTMAN_FETCH_CONFIGS = {
     collectionId: (_b = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.postmanFetchConfigs) === null || _b === void 0 ? void 0 : _b.collectionId,
-    collectionAccessKey: (_c = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.postmanFetchConfigs) === null || _c === void 0 ? void 0 : _c.collectionAccessKey
+    collectionAccessKey: (_c = codegenConfig === null || codegenConfig === void 0 ? void 0 : codegenConfig.postmanFetchConfigs) === null || _c === void 0 ? void 0 : _c.collectionAccessKey,
 };
 const GENERATE_PATH = codegenConfig.generateOutputPath;
 // Files Name Generate config
@@ -157,7 +157,10 @@ const handleApiEndpoints = (postmanData) => {
 const getPlopSeperateActions = (apiEndpoints, outputDir) => __awaiter(void 0, void 0, void 0, function* () {
     const actions = [];
     for (const [entity, apiData] of Object.entries(apiEndpoints)) {
-        const entityTextValid = (0, utils_1.cleanSpecialCharacter)(entity, { transformSpace: true, pascalCase: true });
+        const entityTextValid = (0, utils_1.cleanSpecialCharacter)(entity, {
+            transformSpace: true,
+            pascalCase: true,
+        });
         const folderPath = path_1.default.join(outputDir, (0, utils_1.convertToKebabCase)(entityTextValid));
         let apiDataHasItems = false;
         if (!fs_1.default.existsSync(folderPath)) {
@@ -165,15 +168,15 @@ const getPlopSeperateActions = (apiEndpoints, outputDir) => __awaiter(void 0, vo
         }
         if (!lodash_1.default.isEmpty(apiData.formdata)) {
             const requestTypeContent = yield generateTypeScriptType((0, utils_1.transformFormDataToPayloadObject)(apiData.formdata), `${entityTextValid}Request`);
-            fs_1.default.writeFileSync(path_1.default.join(folderPath, REQUEST_TYPE_FILE_NAME), requestTypeContent, BUFFER_ENDCODING);
+            fs_1.default.writeFileSync(path_1.default.join(folderPath, REQUEST_TYPE_FILE_NAME), (utils_1.IGNORE_CHECK_STRING + requestTypeContent), BUFFER_ENDCODING);
         }
         if (lodash_1.default.isEmpty(apiData.formdata) && !lodash_1.default.isEmpty(apiData.rawBodyRequest)) {
             const requestTypeContent = yield generateTypeScriptType(JSON.parse(apiData.rawBodyRequest), `${entityTextValid}Request`);
-            fs_1.default.writeFileSync(path_1.default.join(folderPath, REQUEST_TYPE_FILE_NAME), requestTypeContent, BUFFER_ENDCODING);
+            fs_1.default.writeFileSync(path_1.default.join(folderPath, REQUEST_TYPE_FILE_NAME), (utils_1.IGNORE_CHECK_STRING + requestTypeContent), BUFFER_ENDCODING);
         }
         if (apiData.queryParams) {
             const queryParamsTypeContent = yield generateTypeScriptType((0, utils_1.transformFormDataToPayloadObject)(apiData.queryParams), `${entityTextValid}QueryParams`);
-            fs_1.default.writeFileSync(path_1.default.join(folderPath, QUERY_TYPE_FILE_NAME), queryParamsTypeContent, BUFFER_ENDCODING);
+            fs_1.default.writeFileSync(path_1.default.join(folderPath, QUERY_TYPE_FILE_NAME), (utils_1.IGNORE_CHECK_STRING + queryParamsTypeContent), BUFFER_ENDCODING);
         }
         if (!lodash_1.default.isEmpty(apiData.response)) {
             const responseTypeContent = yield generateTypeScriptType(JSON.parse(apiData.response), `${entityTextValid}Response`);
@@ -181,7 +184,7 @@ const getPlopSeperateActions = (apiEndpoints, outputDir) => __awaiter(void 0, vo
                 responseTypeContent.includes(`${PROPERTY_API_GET_LIST}:`)) {
                 apiDataHasItems = true;
             }
-            fs_1.default.writeFileSync(path_1.default.join(folderPath, RESPONSE_TYPE_FILE_NAME), responseTypeContent, BUFFER_ENDCODING);
+            fs_1.default.writeFileSync(path_1.default.join(folderPath, RESPONSE_TYPE_FILE_NAME), (utils_1.IGNORE_CHECK_STRING + responseTypeContent), BUFFER_ENDCODING);
         }
         if (apiData.method === "GET" || apiData.method === "DELETE") {
             if (apiData.queryParams) {
@@ -257,9 +260,12 @@ const getPlopCombineActions = (apiEndpoints, outputDir) => __awaiter(void 0, voi
     const actions = [];
     const actionsData = [];
     const folderPath = path_1.default.join(outputDir);
-    let allTypeContent = '';
+    let allTypeContent = utils_1.IGNORE_CHECK_STRING;
     for (const [entity, apiData] of Object.entries(apiEndpoints)) {
-        const entityTextValid = (0, utils_1.cleanSpecialCharacter)(entity, { transformSpace: true, pascalCase: true });
+        const entityTextValid = (0, utils_1.cleanSpecialCharacter)(entity, {
+            transformSpace: true,
+            pascalCase: true,
+        });
         let apiDataHasItems = false;
         if (!fs_1.default.existsSync(folderPath)) {
             fs_1.default.mkdirSync(folderPath, { recursive: true });
@@ -267,17 +273,17 @@ const getPlopCombineActions = (apiEndpoints, outputDir) => __awaiter(void 0, voi
         if (!lodash_1.default.isEmpty(apiData.formdata)) {
             const requestTypeContent = yield generateTypeScriptType((0, utils_1.transformFormDataToPayloadObject)(apiData.formdata), `${entityTextValid}Request`);
             const requestTypeContentValid = (0, utils_1.fixDuplicateInterfacesBetweenStrings)(allTypeContent, requestTypeContent, entityTextValid);
-            allTypeContent = allTypeContent.concat('\n', requestTypeContentValid);
+            allTypeContent = allTypeContent.concat("\n", requestTypeContentValid);
         }
         if (lodash_1.default.isEmpty(apiData.formdata) && !lodash_1.default.isEmpty(apiData.rawBodyRequest)) {
             const requestTypeContent = yield generateTypeScriptType(JSON.parse(apiData.rawBodyRequest), `${entityTextValid}Request`);
             const requestTypeContentValid = (0, utils_1.fixDuplicateInterfacesBetweenStrings)(allTypeContent, requestTypeContent, entityTextValid);
-            allTypeContent = allTypeContent.concat('\n', requestTypeContentValid);
+            allTypeContent = allTypeContent.concat("\n", requestTypeContentValid);
         }
         if (apiData.queryParams) {
             const queryParamsTypeContent = yield generateTypeScriptType((0, utils_1.transformFormDataToPayloadObject)(apiData.queryParams), `${entityTextValid}QueryParams`);
             const queryParamsTypeContentValid = (0, utils_1.fixDuplicateInterfacesBetweenStrings)(allTypeContent, queryParamsTypeContent, entityTextValid);
-            allTypeContent = allTypeContent.concat('\n', queryParamsTypeContentValid);
+            allTypeContent = allTypeContent.concat("\n", queryParamsTypeContentValid);
         }
         if (!lodash_1.default.isEmpty(apiData.response)) {
             const responseTypeContent = yield generateTypeScriptType(JSON.parse(apiData.response), `${entityTextValid}Response`);
@@ -286,7 +292,7 @@ const getPlopCombineActions = (apiEndpoints, outputDir) => __awaiter(void 0, voi
                 apiDataHasItems = true;
             }
             const responseTypeContentValid = (0, utils_1.fixDuplicateInterfacesBetweenStrings)(allTypeContent, responseTypeContent, entityTextValid);
-            allTypeContent = allTypeContent.concat('\n', responseTypeContentValid);
+            allTypeContent = allTypeContent.concat("\n", responseTypeContentValid);
         }
         if (apiData.method === "GET" || apiData.method === "DELETE") {
             if (apiData.queryParams) {
@@ -303,7 +309,7 @@ const getPlopCombineActions = (apiEndpoints, outputDir) => __awaiter(void 0, voi
                     hasItems: apiDataHasItems,
                     isGenerateZod: IS_GENERATE_ZOD_FILE,
                     fetcher: FETCHER_LINK,
-                    template: 'queryWithParams'
+                    template: "queryWithParams",
                 });
             }
             else {
@@ -319,7 +325,7 @@ const getPlopCombineActions = (apiEndpoints, outputDir) => __awaiter(void 0, voi
                     hasItems: apiDataHasItems,
                     isGenerateZod: IS_GENERATE_ZOD_FILE,
                     fetcher: FETCHER_LINK,
-                    template: 'query'
+                    template: "query",
                 });
             }
         }
@@ -337,7 +343,7 @@ const getPlopCombineActions = (apiEndpoints, outputDir) => __awaiter(void 0, voi
                 method: apiData.method,
                 isGenerateZod: IS_GENERATE_ZOD_FILE,
                 fetcher: FETCHER_LINK,
-                template: 'mutation'
+                template: "mutation",
             });
         }
     }
@@ -352,19 +358,18 @@ const getPlopCombineActions = (apiEndpoints, outputDir) => __awaiter(void 0, voi
         data: {
             genList: actionsData,
             fetcher: FETCHER_LINK,
-        }
+        },
     });
     return actions;
 });
 const processGenerateFileZodSchema = (generateType) => __awaiter(void 0, void 0, void 0, function* () {
-    const arrFiles = generateType === utils_1.GenerateTypeEnum.Combine ?
-        [`${GENERATE_PATH}/${COMBINE_TYPE_FILE_NAME}`]
-        :
-            [
-                `${GENERATE_PATH}/**/${REQUEST_TYPE_FILE_NAME}`,
-                `${GENERATE_PATH}/**/${QUERY_TYPE_FILE_NAME}`,
-                `${GENERATE_PATH}/**/${RESPONSE_TYPE_FILE_NAME}`,
-            ];
+    const arrFiles = generateType === utils_1.GenerateTypeEnum.Combine
+        ? [`${GENERATE_PATH}/${COMBINE_TYPE_FILE_NAME}`]
+        : [
+            `${GENERATE_PATH}/**/${REQUEST_TYPE_FILE_NAME}`,
+            `${GENERATE_PATH}/**/${QUERY_TYPE_FILE_NAME}`,
+            `${GENERATE_PATH}/**/${RESPONSE_TYPE_FILE_NAME}`,
+        ];
     const files = yield (0, fast_glob_1.default)(arrFiles);
     if (files.length === 0) {
         console.log("⚠️ File do not exact");
@@ -385,11 +390,16 @@ function default_1(plop) {
             console.error(`❌ Plop action not correct! Let's try --${"generate-queries" /* CONFIG_ARGS_NAME.PLOP_ACTION */}`);
             return;
         }
-        const postmanJsonFile = GENERATE_MODE === utils_1.GenerateModeEnum.JsonFile ? path_1.default.join(process.cwd(), POSTMAN_JSON_PATH) : null;
+        const postmanJsonFile = GENERATE_MODE === utils_1.GenerateModeEnum.JsonFile
+            ? path_1.default.join(process.cwd(), POSTMAN_JSON_PATH)
+            : null;
         const outputDir = path_1.default.join(process.cwd(), GENERATE_PATH);
         let postmanData;
         if (GENERATE_MODE === utils_1.GenerateModeEnum.Fetch) {
-            const postmanDataInfo = yield (0, network_1.fetchPostmanApiDocument)({ collectionId: POSTMAN_FETCH_CONFIGS.collectionId, collectionAccessKey: POSTMAN_FETCH_CONFIGS.collectionAccessKey });
+            const postmanDataInfo = yield (0, network_1.fetchPostmanApiDocument)({
+                collectionId: POSTMAN_FETCH_CONFIGS.collectionId,
+                collectionAccessKey: POSTMAN_FETCH_CONFIGS.collectionAccessKey,
+            });
             postmanData = postmanDataInfo === null || postmanDataInfo === void 0 ? void 0 : postmanDataInfo.collection;
         }
         else {
@@ -401,13 +411,14 @@ function default_1(plop) {
         }
         const apiEndpoints = handleApiEndpoints(postmanData);
         yield (0, utils_1.cleanGeneratedFolder)(GENERATE_PATH);
-        const actions = GENERATE_TYPE === utils_1.GenerateTypeEnum.Combine ? yield getPlopCombineActions(apiEndpoints, outputDir) : yield getPlopSeperateActions(apiEndpoints, outputDir);
+        const actions = GENERATE_TYPE === utils_1.GenerateTypeEnum.Combine
+            ? yield getPlopCombineActions(apiEndpoints, outputDir)
+            : yield getPlopSeperateActions(apiEndpoints, outputDir);
         if (IS_GENERATE_ZOD_FILE) {
             processGenerateFileZodSchema(GENERATE_TYPE);
         }
         plop.setHelper("zodPascalCase", (text) => {
-            return (0, utils_1.cleanSpecialCharacter)(text)
-                .replace(/^([A-Z])/, (match) => match.toLowerCase());
+            return (0, utils_1.cleanSpecialCharacter)(text).replace(/^([A-Z])/, (match) => match.toLowerCase());
         });
         plop.setHelper("eq", (a, b) => a === b);
         plop.setHelper("and", function (a, b) {

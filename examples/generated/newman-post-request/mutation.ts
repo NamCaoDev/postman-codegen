@@ -1,11 +1,8 @@
-import { MutationOptions } from "@tanstack/react-query";
+// eslint-disable
+// @ts-nocheck
 import customFetch from "../../utils/fetcher";
 
-export const newmanPostRequestMutationOptions = (): MutationOptions<
-  null , 
-  unknown
-  
-> => ({
+export const newmanPostRequestMutationOptions = () => ({
   mutationFn: async (data) => {
     const res = await customFetch<null >({
       url: '',

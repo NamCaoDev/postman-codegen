@@ -1,5 +1,6 @@
 {{#if (eq generateType "seperate")}}
-import { MutationOptions } from "@tanstack/react-query";
+// eslint-disable
+// @ts-nocheck
 {{#if requestType}}
 import { {{ requestType }} } from "./apiRequests";
 {{/if}}
@@ -12,11 +13,7 @@ import { {{ zodPascalCase name }}ResponseSchema } from "./apiResponses.zod";
 import customFetch from "{{fetcher}}";
 {{/if}}
 
-export const {{ camelCase name }}MutationOptions = (): MutationOptions<
-  {{#if responseType}}{{ responseType }}{{else}}null{{/if}} {{#if responseType}}| undefined{{/if}}, 
-  unknown{{#if requestType}},{{/if}}
-  {{ requestType }}
-> => ({
+export const {{ camelCase name }}MutationOptions = () => ({
   mutationFn: async (data) => {
     const res = await customFetch<{{#if responseType}}{{ responseType }}{{else}}null{{/if}}{{#if requestType}},{{/if}} {{ requestType }}>({
       url: '{{ apiPath }}',

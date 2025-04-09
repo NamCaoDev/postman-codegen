@@ -1,4 +1,6 @@
 {{#if (eq generateType "seperate")}}
+// eslint-disable
+// @ts-nocheck
 import querystring from 'query-string';
 {{#if responseType}}
 import { {{ responseType }} } from "./apiResponses";

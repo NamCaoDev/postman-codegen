@@ -1,3 +1,5 @@
+// eslint-disable
+// @ts-nocheck
 import querystring from 'query-string';
 import { NewmanGetRequestQueryParams } from "./apiQueries";
 import customFetch from "../../utils/fetcher";
