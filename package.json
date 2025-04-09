@@ -1,7 +1,7 @@
 {
   "name": "@namcaodev/postman-codegen",
   "author": "Nam Cao Dev",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "homepage": "https://github.com/NamCaoDev/postman-codegen.git#readme",
   "description": "Auto generate all file typescript, query options, mutation options of tanstack query from postman json",
