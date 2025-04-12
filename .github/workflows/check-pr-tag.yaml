@@ -11,20 +11,22 @@ jobs:
       - name: Extract tags from PR labels
         id: extract
         run: |
-          LABELS=$(echo '${{ toJson(github.event.pull_request.labels) }}' | grep -Eo '"name": ?"v[0-9]+\.[0-9]+\.[0-9]+"' | sed -E 's/.*"name": ?"v([^"]+)"/\1/')
+          sudo apt-get install jq
           
+          LABELS=$(echo '${{ toJson(github.event.pull_request.labels) }}' | jq -r '.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name')
+
           if [ -z "$LABELS" ]; then
             echo "❌ No version label (vX.Y.Z) found."
             exit 1
           fi
-
+          
           echo "Labels found: $LABELS"
+
+          VERSION=$(echo "$LABELS" | head -n 1)
           
-          VERSION=$(echo "$LABELS" | grep -m 1 -E '^v[0-9]+\.[0-9]+\.[0-9]+$')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          
           echo "Selected version: $VERSION"
-          
+
       - name: Get current version from NPM
         id: npm
         run: |
