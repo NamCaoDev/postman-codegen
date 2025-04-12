@@ -11,19 +11,23 @@ jobs:
       - name: Extract tags from PR labels
         id: extract
         run: |
-          sudo apt-get install jq
-          
           LABELS=$(echo '${{ toJson(github.event.pull_request.labels) }}' | jq -r '.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name')
 
           if [ -z "$LABELS" ]; then
             echo "❌ No version label (vX.Y.Z) found."
             exit 1
           fi
-          
+
+          LABEL_COUNT=$(echo "$LABELS" | wc -l)
+          if [ "$LABEL_COUNT" -gt 1 ]; then
+            echo "❌ More than one version label found. Please ensure there is only one version tag."
+            exit 1
+          fi
+
           echo "Labels found: $LABELS"
 
           VERSION=$(echo "$LABELS" | head -n 1)
-          
+
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Selected version: $VERSION"
 
