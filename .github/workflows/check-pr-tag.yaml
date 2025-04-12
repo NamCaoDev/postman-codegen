@@ -5,15 +5,34 @@ on:
     types: [opened, synchronize, reopened, labeled, unlabeled, edited]
 
 jobs:
-  check-tag:
+  check-version:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if PR has version tag
+      - name: Extract tag from PR labels
+        id: extract
         run: |
-          echo "PR labels: ${{ toJson(github.event.pull_request.labels) }}"
-          echo "Check for tag..."
-          LABEL_FOUND=$(echo '${{ toJson(github.event.pull_request.labels) }}' | grep -E '"name": ?"v[0-9]+\.[0-9]+\.[0-9]+"' || true)
-          if [ -z "$LABEL_FOUND" ]; then
-            echo "❌ Missing version tag (e.g. v1.2.3) in PR labels"
+          LABEL=$(echo '${{ toJson(github.event.pull_request.labels) }}' | grep -Eo '"name": ?"v[0-9]+\.[0-9]+\.[0-9]+"' | head -n 1 | sed -E 's/.*"v([^"]+)"/\1/')
+          echo "Label version found: $LABEL"
+          if [ -z "$LABEL" ]; then
+            echo "❌ No version label (vX.Y.Z) found."
             exit 1
+          fi
+          echo "version=$LABEL" >> "$GITHUB_OUTPUT"
+
+      - name: Get current version from NPM
+        id: npm
+        run: |
+          CURRENT=$(npm view <your-package-name> version)
+          echo "Current NPM version: $CURRENT"
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+
+      - name: Compare versions
+        run: |
+          npm install -g semver
+          echo "Comparing ${{ steps.extract.outputs.version }} > ${{ steps.npm.outputs.current }}"
+          if ! semver -r ">${{ steps.npm.outputs.current }}" "${{ steps.extract.outputs.version }}"; then
+            echo "❌ PR version must be greater than current NPM version."
+            exit 1
+          else
+            echo "✅ Valid version"
           fi
