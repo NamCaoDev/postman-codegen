@@ -14,10 +14,10 @@ jobs:
 
       - name: Extract version label from PR
         id: extract
+        env:
+            LABELS_JSON: ${{ toJson(github.event.pull_request.labels) }}
         run: |
           echo "🔍 Extracting version label..."
-
-          LABELS_JSON="${{ toJson(github.event.pull_request.labels) }}"
 
           VERSION_LABEL=$(echo "$LABELS_JSON" | jq -r '[.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))][0] // empty | .name')
 
