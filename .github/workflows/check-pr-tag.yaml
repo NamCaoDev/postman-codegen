@@ -7,32 +7,55 @@ on:
 jobs:
   check-version:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Extract tag from PR labels
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Extract version label from PR
         id: extract
+        env:
+            LABELS_JSON: ${{ toJson(github.event.pull_request.labels) }}
         run: |
-          LABEL=$(echo '${{ toJson(github.event.pull_request.labels) }}' | grep -Eo '"name": ?"v[0-9]+\.[0-9]+\.[0-9]+"' | head -n 1 | sed -E 's/.*"v([^"]+)"/\1/')
-          echo "Label version found: $LABEL"
-          if [ -z "$LABEL" ]; then
-            echo "❌ No version label (vX.Y.Z) found."
+          echo "🔍 Extracting version label..."
+
+          VERSION_LABEL=$(echo "$LABELS_JSON" | jq -r '[.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))][0] // empty | .name')
+
+          # Count how many version labels exist
+          VERSION_COUNT=$(echo "$LABELS_JSON" | jq '[.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))] | length')
+
+          echo "Found version labels: $VERSION_COUNT"
+          echo "First version label: $VERSION_LABEL"
+
+          if [ "$VERSION_COUNT" -ne 1 ]; then
+            echo "❌ There should be exactly one version label (vX.Y.Z), found $VERSION_COUNT"
             exit 1
           fi
-          echo "version=$LABEL" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$VERSION_LABEL" ]; then
+            echo "❌ No valid version label found."
+            exit 1
+          fi
+
+          echo "✅ Version label valid: $VERSION_LABEL"
+          echo "version=$VERSION_LABEL" >> "$GITHUB_OUTPUT"
 
       - name: Get current version from NPM
         id: npm
         run: |
           CURRENT=$(npm view @namcaodev/postman-codegen version)
-          echo "Current NPM version: $CURRENT"
+          echo "📦 Current NPM version: $CURRENT"
           echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
 
       - name: Compare versions
         run: |
           npm install -g semver
-          echo "Comparing ${{ steps.extract.outputs.version }} > ${{ steps.npm.outputs.current }}"
+          echo "🔢 Comparing versions..."
+          echo "New: ${{ steps.extract.outputs.version }}, Current: ${{ steps.npm.outputs.current }}"
+
           if ! semver -r ">${{ steps.npm.outputs.current }}" "${{ steps.extract.outputs.version }}"; then
             echo "❌ PR version must be greater than current NPM version."
             exit 1
           else
-            echo "✅ Valid version"
+            echo "✅ PR version is valid and greater."
           fi
