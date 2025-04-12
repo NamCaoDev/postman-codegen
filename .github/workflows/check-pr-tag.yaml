@@ -1,0 +1,19 @@
+name: Check PR Tag
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled, edited]
+
+jobs:
+  check-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR has version tag
+        run: |
+          echo "PR labels: ${{ toJson(github.event.pull_request.labels) }}"
+          echo "Check for tag..."
+          LABEL_FOUND=$(echo '${{ toJson(github.event.pull_request.labels) }}' | grep -E '"name": ?"v[0-9]+\.[0-9]+\.[0-9]+"' || true)
+          if [ -z "$LABEL_FOUND" ]; then
+            echo "❌ Missing version tag (e.g. v1.2.3) in PR labels"
+            exit 1
+          fi
