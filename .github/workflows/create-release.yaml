@@ -39,7 +39,9 @@ jobs:
               git checkout -b "release/$LABEL"
               git config user.name "github-actions[bot]"
               git config user.email "github-actions[bot]@users.noreply.github.com"
-              git commit --allow-empty -m "chore(release): prepare release $LABEL"
+              echo "Trigger release for $LABEL" >> .github/RELEASE_LOG.md
+              git add .github/RELEASE_LOG.md
+              git commit -m "chore(release): prepare release $LABEL"
               git push origin "release/$LABEL"
             fi
           fi
