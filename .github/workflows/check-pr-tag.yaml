@@ -13,7 +13,7 @@ jobs:
         run: |
           # Extract version label (vX.Y.Z) from PR labels
 
-          LABELS_JSON=${{ toJson(github.event.pull_request.labels) }}
+          LABELS_JSON="${{ toJson(github.event.pull_request.labels) }}"
 
           LABELS=$(echo "$LABELS_JSON" | jq -r '.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name')
 
