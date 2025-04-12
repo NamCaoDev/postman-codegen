@@ -8,7 +8,7 @@ jobs:
   check-version:
     runs-on: ubuntu-latest
     steps:
-      - name: Extract tags from PR labels
+      - name: Extract tag from PR labels
         id: extract
         run: |
           LABELS=$(echo '${{ toJson(github.event.pull_request.labels) }}' | jq -r '.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name')
@@ -19,27 +19,25 @@ jobs:
           fi
 
           LABEL_COUNT=$(echo "$LABELS" | wc -l)
-          if [ "$LABEL_COUNT" -gt 1 ]; then
-            echo "❌ More than one version label found. Please ensure there is only one version tag."
+          if [ "$LABEL_COUNT" -ne 1 ]; then
+            echo "❌ There should be exactly one version label, found $LABEL_COUNT."
             exit 1
           fi
 
-          echo "Labels found: $LABELS"
-
-          VERSION=$(echo "$LABELS" | head -n 1)
-
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Selected version: $VERSION"
+          echo "version=$LABELS" >> "$GITHUB_OUTPUT"
+          echo "Selected version: $LABELS"
 
       - name: Get current version from NPM
         id: npm
         run: |
+          # Get the current version from NPM
           CURRENT=$(npm view @namcaodev/postman-codegen version)
           echo "Current NPM version: $CURRENT"
           echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
 
       - name: Compare versions
         run: |
+          # Compare the new version with the current NPM version using semver
           npm install -g semver
           echo "Comparing ${{ steps.extract.outputs.version }} > ${{ steps.npm.outputs.current }}"
           if ! semver -r ">${{ steps.npm.outputs.current }}" "${{ steps.extract.outputs.version }}"; then
