@@ -45,6 +45,8 @@ const LIBRARY_ROOT = path.resolve(__dirname);
 
 const configPath = path.resolve(process.cwd(), "codegen.config.cjs");
 
+console.log('Test owner...');
+
 if (!fs.existsSync(configPath)) {
   console.error("❌ Missing codegen.config.js file. Please create one.");
   process.exit(1);
