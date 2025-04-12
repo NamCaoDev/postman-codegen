@@ -22,7 +22,7 @@ jobs:
       - name: Get current version from NPM
         id: npm
         run: |
-          CURRENT=$(npm view <your-package-name> version)
+          CURRENT=$(npm view @namcaodev/postman-codegen version)
           echo "Current NPM version: $CURRENT"
           echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
 
