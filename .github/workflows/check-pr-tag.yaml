@@ -11,22 +11,32 @@ jobs:
       - name: Extract tag from PR labels
         id: extract
         run: |
-          echo "🔍 Extracting version label from PR labels..."
+          # Extract version label (vX.Y.Z) from PR labels
 
-          LABELS_JSON='${{ toJson(github.event.pull_request.labels) }}'
-          echo "📌 All PR labels:"
-          echo "$LABELS_JSON" | jq
+          LABELS_JSON=${{ toJson(github.event.pull_request.labels) }}
 
-          VERSION=$(echo "$LABELS_JSON" | jq -r '.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name' | head -n 1)
+          LABELS=$(echo "$LABELS_JSON" | jq -r '.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name')
 
-          if [ -z "$VERSION" ]; then
-            echo "❌ No version label (vX.Y.Z) found among PR labels."
+          # Debug: print the value of LABELS
+          echo "Labels extracted: $LABELS"
+
+          # Check if any version label is found
+          if [ -z "$LABELS" ]; then
+            echo "❌ No version label (vX.Y.Z) found."
             exit 1
           fi
 
-          echo "✅ Found version label: $VERSION"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          
+          # Check if there's exactly one version label
+          LABEL_COUNT=$(echo "$LABELS" | wc -l)
+          if [ "$LABEL_COUNT" -ne 1 ]; then
+            echo "❌ There should be exactly one version label, found $LABEL_COUNT."
+            exit 1
+          fi
+
+          # Set the output version
+          echo "version=$LABELS" >> "$GITHUB_OUTPUT"
+          echo "Selected version: $LABELS"
+
       - name: Get current version from NPM
         id: npm
         run: |
