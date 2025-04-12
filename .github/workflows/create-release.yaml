@@ -1,11 +1,9 @@
 name: Build and Create Release
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*.*.*'
+  pull_request:
+    types:
+      - closed
   
 permissions:
   contents: write
@@ -30,16 +28,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run build step
-        run: npm run build
-
       - name: Create release branch
         run: |
-          # Create a new release branch from main
-          RELEASE_TAG="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"  # fallback for old runtime
-          RELEASE_BRANCH="release/${RELEASE_TAG}"
-          git checkout -b "$RELEASE_BRANCH"
-          git push origin "$RELEASE_BRANCH"
+          if [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            # Check if PR has tag-like label
+            LABEL=$(gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$')
+            if [ -n "$LABEL" ]; then
+              git checkout -b "release/$LABEL"
+              git push origin "release/$LABEL"
+            fi
+          fi
 
       - name: Create Pull Request to merge release into main
         run: |
@@ -47,17 +45,17 @@ jobs:
           sudo apt-get install -y gh
           echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
 
-          RELEASE_BRANCH="release/${GITHUB_REF##*/}"
-          VERSION_LABEL="${GITHUB_REF##*/}"
+          RELEASE_TAG="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"
+          RELEASE_BRANCH="release/${RELEASE_TAG}"
           
           # Create PR
           gh pr create \
             --base dev \
             --head "$RELEASE_BRANCH" \
-            --title "Merge release into main" \
-            --body "Auto-generated PR to merge release branch into main."
+            --title "Release $RELEASE_TAG" \
+            --body "Auto-generated PR to merge release \`$RELEASE_BRANCH\` into main."
 
           # Add label (e.g., "v1.2.3")
           PR_NUMBER=$(gh pr list --head "$RELEASE_BRANCH" --json number -q '.[0].number')
-          gh pr edit "$PR_NUMBER" --add-label "$VERSION_LABEL"
+          gh pr edit "$PR_NUMBER" --add-label "$RELEASE_TAG"
 
