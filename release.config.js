@@ -1,5 +1,5 @@
 module.exports = {
-    branches: ['main'],
+    branches: ['release/**'],
     plugins: [
       '@semantic-release/release-notes-generator', // create changelog
       '@semantic-release/changelog', // insert CHANGELOG.md
