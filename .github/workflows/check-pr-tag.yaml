@@ -14,6 +14,9 @@ jobs:
           # Extract version label (vX.Y.Z) from PR labels
           LABELS=$(echo '${{ toJson(github.event.pull_request.labels) }}' | jq -r '.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name')
 
+          # Debug: print the value of LABELS
+          echo "Labels extracted: $LABELS"
+
           # Check if any version label is found
           if [ -z "$LABELS" ]; then
             echo "❌ No version label (vX.Y.Z) found."
