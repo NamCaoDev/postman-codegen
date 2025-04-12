@@ -15,6 +15,9 @@
   "bin": {
     "postman-codegen": "bin/codegen.js"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "private": false,
   "keywords": [
     "codegen",
