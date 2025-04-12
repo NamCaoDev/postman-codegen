@@ -46,7 +46,7 @@ jobs:
 
       - name: Create Pull Request to merge release into main
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           sudo apt-get update
           sudo apt-get install -y gh
