@@ -1,3 +1,18 @@
+# [2.2.0](https://github.com/NamCaoDev/postman-codegen/compare/v2.1.0...v2.2.0) (2025-04-12)
+
+
+### Bug Fixes
+
+* add console staring ([738056f](https://github.com/NamCaoDev/postman-codegen/commit/738056f3be6377f921fefcc8eeb9c709bfd08dea))
+* remove duplicate run action github ([1968596](https://github.com/NamCaoDev/postman-codegen/commit/1968596109e369d2523d2e1ab6dcf520c2e03ba1))
+* test push follow version ([3999325](https://github.com/NamCaoDev/postman-codegen/commit/3999325ebad1707a4393620bdf1af80af2a086ed))
+* test rule ([c5f094b](https://github.com/NamCaoDev/postman-codegen/commit/c5f094b5367b6c5bd3656aee3db8694979b7d892))
+
+
+### Features
+
+* add codeowners for repo ([37c6a24](https://github.com/NamCaoDev/postman-codegen/commit/37c6a247bd804185191cbd679762db600d1c2617))
+
 # [2.1.0](https://github.com/NamCaoDev/postman-codegen/compare/v2.0.9...v2.1.0) (2025-04-12)
 
 
