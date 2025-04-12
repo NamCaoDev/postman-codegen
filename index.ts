@@ -41,9 +41,6 @@ export type {
   GenerateTypeEnum,
 };
 
-console.log('Starting action');
-console.log('Starting action 2');
-
 const LIBRARY_ROOT = path.resolve(__dirname);
 
 const configPath = path.resolve(process.cwd(), "codegen.config.cjs");
