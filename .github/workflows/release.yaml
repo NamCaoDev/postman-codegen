@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set Git safe directory
+        run: git config --global --add safe.directory /home/runner/work/postman-codegen/postman-codegen
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
