@@ -11,31 +11,13 @@ jobs:
       - name: Extract tag from PR labels
         id: extract
         run: |
-          # Extract version label (vX.Y.Z) from PR labels
-
-          LABELS_JSON="${{ toJson(github.event.pull_request.labels) }}"
-
-          LABELS=$(echo "$LABELS_JSON" | jq -r '.[] | select(.name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name')
-
-          # Debug: print the value of LABELS
-          echo "Labels extracted: $LABELS"
-
-          # Check if any version label is found
-          if [ -z "$LABELS" ]; then
+          LABEL=$(echo '${{ toJson(github.event.pull_request.labels) }}' | grep -Eo '"name": ?"v[0-9]+\.[0-9]+\.[0-9]+"' | head -n 1 | sed -E 's/.*"v([^"]+)"/\1/')
+          echo "Label version found: $LABEL"
+          if [ -z "$LABEL" ]; then
             echo "❌ No version label (vX.Y.Z) found."
             exit 1
           fi
-
-          # Check if there's exactly one version label
-          LABEL_COUNT=$(echo "$LABELS" | wc -l)
-          if [ "$LABEL_COUNT" -ne 1 ]; then
-            echo "❌ There should be exactly one version label, found $LABEL_COUNT."
-            exit 1
-          fi
-
-          # Set the output version
-          echo "version=$LABELS" >> "$GITHUB_OUTPUT"
-          echo "Selected version: $LABELS"
+          echo "version=$LABEL" >> "$GITHUB_OUTPUT"
 
       - name: Get current version from NPM
         id: npm
