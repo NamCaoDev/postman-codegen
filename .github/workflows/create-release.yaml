@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  create-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -44,24 +44,24 @@ jobs:
             fi
           fi
 
-      - name: Create Pull Request to merge release into main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gh
+      # - name: Create Pull Request to merge release into main
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y gh
 
-          RELEASE_TAG="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"
-          RELEASE_BRANCH="release/${RELEASE_TAG}"
+      #     RELEASE_TAG="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"
+      #     RELEASE_BRANCH="release/${RELEASE_TAG}"
           
-          # Create PR
-          gh pr create \
-            --base dev \
-            --head "$RELEASE_BRANCH" \
-            --title "Release $RELEASE_TAG" \
-            --body "Auto-generated PR to merge release \`$RELEASE_BRANCH\` into main."
+      #     # Create PR
+      #     gh pr create \
+      #       --base dev \
+      #       --head "$RELEASE_BRANCH" \
+      #       --title "Release $RELEASE_TAG" \
+      #       --body "Auto-generated PR to merge release \`$RELEASE_BRANCH\` into main."
 
-          # Add label (e.g., "v1.2.3")
-          PR_NUMBER=$(gh pr list --head "$RELEASE_BRANCH" --json number -q '.[0].number')
-          gh pr edit "$PR_NUMBER" --add-label "$RELEASE_TAG"
+      #     # Add label (e.g., "v1.2.3")
+      #     PR_NUMBER=$(gh pr list --head "$RELEASE_BRANCH" --json number -q '.[0].number')
+      #     gh pr edit "$PR_NUMBER" --add-label "$RELEASE_TAG"
 
