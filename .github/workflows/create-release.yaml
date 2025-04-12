@@ -29,6 +29,8 @@ jobs:
         run: npm ci
 
       - name: Create release branch
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           if [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
             # Check if PR has tag-like label
@@ -40,10 +42,11 @@ jobs:
           fi
 
       - name: Create Pull Request to merge release into main
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           sudo apt-get update
           sudo apt-get install -y gh
-          echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
 
           RELEASE_TAG="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"
           RELEASE_BRANCH="release/${RELEASE_TAG}"
