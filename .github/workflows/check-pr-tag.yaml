@@ -35,7 +35,6 @@ jobs:
 
           # Set the output version
           echo "version=$LABELS" >> "$GITHUB_OUTPUT"
-          echo "Selected version: $LABELS"
 
       - name: Get current version from NPM
         id: npm
