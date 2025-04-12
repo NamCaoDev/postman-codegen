@@ -37,7 +37,8 @@
     "build": "tsc && cp -r plop-templates dist/",
     "prepare": "npm run build",
     "codegen-ts": "cross-env NODE_OPTIONS='--import tsx' plop --plopfile=index.ts generate-queries",
-    "codegen": "npx plop --plopfile=dist/index.js generate-queries"
+    "codegen": "npx plop --plopfile=dist/index.js generate-queries",
+    "postinstall": "husky install"
   },
   "dependencies": {
     "@turbo/gen": "^2.4.4",
@@ -53,9 +54,17 @@
     "tsx": "^4.19.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/npm": "^12.0.1",
     "@types/lodash": "^4.17.16",
     "@types/node": "^22.13.10",
+    "commitlint": "^19.8.0",
+    "husky": "^9.1.7",
     "node-plop": "^0.32.0",
+    "semantic-release": "^24.2.3",
     "typescript": "~5.8.2"
   }
 }
