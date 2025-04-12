@@ -8,17 +8,23 @@ jobs:
   check-version:
     runs-on: ubuntu-latest
     steps:
-      - name: Extract tag from PR labels
+      - name: Extract tags from PR labels
         id: extract
         run: |
-          LABEL=$(echo '${{ toJson(github.event.pull_request.labels) }}' | grep -Eo '"name": ?"v[0-9]+\.[0-9]+\.[0-9]+"' | head -n 1 | sed -E 's/.*"v([^"]+)"/\1/')
-          echo "Label version found: $LABEL"
-          if [ -z "$LABEL" ]; then
+          LABELS=$(echo '${{ toJson(github.event.pull_request.labels) }}' | grep -Eo '"name": ?"v[0-9]+\.[0-9]+\.[0-9]+"' | sed -E 's/.*"name": ?"v([^"]+)"/\1/')
+          
+          if [ -z "$LABELS" ]; then
             echo "❌ No version label (vX.Y.Z) found."
             exit 1
           fi
-          echo "version=$LABEL" >> "$GITHUB_OUTPUT"
 
+          echo "Labels found: $LABELS"
+          
+          VERSION=$(echo "$LABELS" | grep -m 1 -E '^v[0-9]+\.[0-9]+\.[0-9]+$')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          
+          echo "Selected version: $VERSION"
+          
       - name: Get current version from NPM
         id: npm
         run: |
