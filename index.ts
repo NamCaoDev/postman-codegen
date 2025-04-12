@@ -41,7 +41,7 @@ export type {
   GenerateTypeEnum,
 };
 
-console.log('Starting process...');
+console.log('Starting process 2...');
 
 const LIBRARY_ROOT = path.resolve(__dirname);
 
