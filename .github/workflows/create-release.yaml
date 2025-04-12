@@ -36,7 +36,8 @@ jobs:
       - name: Create release branch
         run: |
           # Create a new release branch from main
-          RELEASE_BRANCH="release/${GITHUB_REF##*/}"
+          RELEASE_TAG="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"  # fallback for old runtime
+          RELEASE_BRANCH="release/${RELEASE_TAG}"
           git checkout -b "$RELEASE_BRANCH"
           git push origin "$RELEASE_BRANCH"
 
@@ -55,7 +56,7 @@ jobs:
             --head "$RELEASE_BRANCH" \
             --title "Merge release into main" \
             --body "Auto-generated PR to merge release branch into main."
-            
+
           # Add label (e.g., "v1.2.3")
           PR_NUMBER=$(gh pr list --head "$RELEASE_BRANCH" --json number -q '.[0].number')
           gh pr edit "$PR_NUMBER" --add-label "$VERSION_LABEL"
