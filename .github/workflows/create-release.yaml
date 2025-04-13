@@ -30,26 +30,16 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y gh
-        
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.8.1'
-          registry-url: 'https://registry.npmjs.org/'
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Create release branch with create PR for this
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          HUSKY: 0
         run: |
           if [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
             # Check if PR has tag-like label
-            LABEL=$(gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$')
-            if [ -n "$LABEL" ]; then
+              LABEL=$(gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$')
+              if [ -n "$LABEL" ]; then
+              git remote set-url origin https://${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}
               git checkout -b "release/$LABEL"
               git config user.name "github-actions[bot]"
               git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -57,9 +47,6 @@ jobs:
               git add .github/RELEASE_LOG.md
               git commit -m "chore(release): prepare release $LABEL"
               git push origin "release/$LABEL"
-
-              # Run semantic check version
-              npx semantic-release --config .releaserc.release.json
 
               echo "GH_TOKEN is set: ${{ env.GH_TOKEN != '' }}"
 
