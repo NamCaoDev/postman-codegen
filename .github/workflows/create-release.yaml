@@ -66,26 +66,4 @@ jobs:
               gh pr edit "$PR_NUMBER" --add-label "$LABEL"
             fi
           fi
-  
-  trigger-release:
-     if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
-     runs-on: ubuntu-latest
-     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set Git safe directory
-        run: git config --global --add safe.directory /home/runner/work/postman-codegen/postman-codegen
-
-      - name: Trigger release action
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
-        run: |
-          if [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
-              curl -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/publish-npm.yaml/dispatches \
-                -H "Accept: application/vnd.github.v3+json" \
-                -H "Authorization: token ${GH_TOKEN}" \
-                -d '{"ref":"main"}'
-          fi
-    
 
