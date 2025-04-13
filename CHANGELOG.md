@@ -1,3 +1,50 @@
+# [2.3.0](https://github.com/NamCaoDev/postman-codegen/compare/v2.2.0...v2.3.0) (2025-04-13)
+
+
+### Bug Fixes
+
+* add action create release pull request closed ([cb3b5ed](https://github.com/NamCaoDev/postman-codegen/commit/cb3b5ed1ec7b44cc6353a7e800dec6297b620882))
+* add charactter ([e11be0a](https://github.com/NamCaoDev/postman-codegen/commit/e11be0a12fba5624543bb1985a4034e455c5e5b8))
+* add condition for extract version ([08f5068](https://github.com/NamCaoDev/postman-codegen/commit/08f5068d7ced5ec953f5fe183ab7e06fd1234a53))
+* add empty commit for release branch ([edc4584](https://github.com/NamCaoDev/postman-codegen/commit/edc4584e0d16f043b83c693100de3c334f33c570))
+* add pa require tag md ([dab7a4f](https://github.com/NamCaoDev/postman-codegen/commit/dab7a4f881fd0f3ded49ef3cd6c37d9631e61010))
+* add user bot for commit ([94bf7f1](https://github.com/NamCaoDev/postman-codegen/commit/94bf7f16f6a9bf5b8692d14a7951287c7a2da497))
+* change my package check pr ([b93c553](https://github.com/NamCaoDev/postman-codegen/commit/b93c5534324e634abb7cdf1ee4e12a985698a9c5))
+* check many tag ([5981503](https://github.com/NamCaoDev/postman-codegen/commit/59815037b3d85adddc82e6d00c1cececf11fcd10))
+* check version fix 1 ([3bfcfd0](https://github.com/NamCaoDev/postman-codegen/commit/3bfcfd00795f7f30588e0e95b9cf225b66b47cda))
+* combine flow ([1a0a1c4](https://github.com/NamCaoDev/postman-codegen/commit/1a0a1c47d0dc4721e94778219db6e67abe668463))
+* combine step create PR ([c9566d1](https://github.com/NamCaoDev/postman-codegen/commit/c9566d174d210c4d750c575432dbefd2811b8577))
+* convert json to env ([b404e70](https://github.com/NamCaoDev/postman-codegen/commit/b404e70dad8690a0e5014be9aa2c6738104a5863))
+* convert to gh token ([a38b261](https://github.com/NamCaoDev/postman-codegen/commit/a38b261f0f280d3c4a105a77799508ca8631dffe))
+* convert use PAT push ([0d2af96](https://github.com/NamCaoDev/postman-codegen/commit/0d2af96c4cd956d351df367409b1a15c7dcb2898))
+* edit label tag ([a03c140](https://github.com/NamCaoDev/postman-codegen/commit/a03c14025e78cbff5a16c75f41451d89dc62f3af))
+* extract correct json ([e50b616](https://github.com/NamCaoDev/postman-codegen/commit/e50b616027f7cb2411039489aa90234ba23d5928))
+* final version ([671bdb4](https://github.com/NamCaoDev/postman-codegen/commit/671bdb49688cb331e9b02b3e88302f0e4c3fdd14))
+* fix add file small for relase log ([dbd309f](https://github.com/NamCaoDev/postman-codegen/commit/dbd309fde926be3932665a99a173915000074600))
+* fix check pr test ([b8d3443](https://github.com/NamCaoDev/postman-codegen/commit/b8d3443e195e3929d62e888be109ad897cc47186))
+* fix error chose version tag ([6ee9efe](https://github.com/NamCaoDev/postman-codegen/commit/6ee9efe2b6bce77fb742ca48592be90387fdcdc0))
+* fix seperate version label ([838211e](https://github.com/NamCaoDev/postman-codegen/commit/838211e8b90eebab03e16d953c527ef5f8e70fea))
+* fix syntax ([3999c29](https://github.com/NamCaoDev/postman-codegen/commit/3999c299964b95f351679e2219f0dfb4238997b3))
+* help upgrade version check with npm ([f112695](https://github.com/NamCaoDev/postman-codegen/commit/f112695c8ff59c205c9c6ef424e85ce7ad846036))
+* remove echo ffinal ([18d2d2b](https://github.com/NamCaoDev/postman-codegen/commit/18d2d2be177e7db65bf61adae9f3f9b06fd6f644))
+* remove log ([1404e27](https://github.com/NamCaoDev/postman-codegen/commit/1404e2703dffdf02df877dd70490c14641cf61ec))
+* revert ([8ed95de](https://github.com/NamCaoDev/postman-codegen/commit/8ed95de0cbea79e6f322c9d0357decca3289bdf7))
+* show log labels ([b235031](https://github.com/NamCaoDev/postman-codegen/commit/b235031b230f10b9149d1bfac91fbb8bd84dc44c))
+* test hide create PA ([87a9a53](https://github.com/NamCaoDev/postman-codegen/commit/87a9a53eb886d6998255d826f0a6cf3e06b5ff2d))
+* test new workflow ([6948618](https://github.com/NamCaoDev/postman-codegen/commit/694861844667eb915dfffb14ae43f2f9d9f9b74d))
+* test owner ([38d2afe](https://github.com/NamCaoDev/postman-codegen/commit/38d2afe8f46180c32029dec916181f40d91fa477))
+* try revert gihuv token ([2208d41](https://github.com/NamCaoDev/postman-codegen/commit/2208d41e22d0633538aa502735c28e757667243d))
+* upgade agian code ([75d3c85](https://github.com/NamCaoDev/postman-codegen/commit/75d3c85c980ee5e4ce88b541df78ea0521b8000d))
+* upgrade create release branch csontant ([d792fae](https://github.com/NamCaoDev/postman-codegen/commit/d792faef247a0e9d1eb55a841c70015b4088443d))
+* upgrade enter pr tag ([010fa40](https://github.com/NamCaoDev/postman-codegen/commit/010fa40fbef36b020210f47bee67e4fc575e5d6f))
+* upgrade extract if no version tag ([b2900f5](https://github.com/NamCaoDev/postman-codegen/commit/b2900f59db39f979b3307be1053447d54ba98875))
+
+
+### Features
+
+* add new flow ([b767027](https://github.com/NamCaoDev/postman-codegen/commit/b7670273d3695b834ccc65170ff42abb05225e94))
+* create env for release and create build action ([6d31b41](https://github.com/NamCaoDev/postman-codegen/commit/6d31b41db6ebfe96d9875c0cefcd27b7320ec01a))
+
 # [2.2.0](https://github.com/NamCaoDev/postman-codegen/compare/v2.1.0...v2.2.0) (2025-04-12)
 
 
