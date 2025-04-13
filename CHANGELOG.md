@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/NamCaoDev/postman-codegen/compare/v2.3.0...v2.3.1) (2025-04-13)
+
+
+### Bug Fixes
+
+* fix file name curl ([0873659](https://github.com/NamCaoDev/postman-codegen/commit/087365941a396421afba0d2deafcffb460672d40))
+
 # [2.3.0](https://github.com/NamCaoDev/postman-codegen/compare/v2.2.0...v2.3.0) (2025-04-13)
 
 
