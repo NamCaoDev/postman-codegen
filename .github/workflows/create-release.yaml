@@ -48,7 +48,7 @@ jobs:
               git commit -m "chore(release): prepare release $LABEL"
               git push origin "release/$LABEL"
 
-              curl -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/prepare-release.yml/dispatches \
+              curl -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/prepare-release.yaml/dispatches \
                 -H "Accept: application/vnd.github.v3+json" \
                 -H "Authorization: token ${GH_TOKEN}" \
                 -d '{"ref":"release/'"$LABEL"'"}'
