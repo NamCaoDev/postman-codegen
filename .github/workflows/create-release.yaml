@@ -24,8 +24,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
 
-      - name: Create release branch
+      - name: Create release branch with create PR for this
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -40,27 +45,16 @@ jobs:
               git add .github/RELEASE_LOG.md
               git commit -m "chore(release): prepare release $LABEL"
               git push origin "release/$LABEL"
+
+              # ✅ Create PR for this
+              gh pr create \
+                --base main \
+                --head "release/$LABEL" \
+                --title "Release $LABEL" \
+                --body "Auto-generated PR to merge release \`release/$LABEL\` into main."
+
+              PR_NUMBER=$(gh pr list --head "release/$LABEL" --json number -q '.[0].number')
+              gh pr edit "$PR_NUMBER" --add-label "$LABEL"
             fi
           fi
-
-      - name: Create Pull Request to merge release into main
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gh
-
-          LABEL=$(gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$')
-          RELEASE_BRANCH="release/${LABEL}"
-          
-          # Create PR
-          gh pr create \
-            --base main
-            --head "$RELEASE_BRANCH" \
-            --title "Release $LABEL" \
-            --body "Auto-generated PR to merge release \`$RELEASE_BRANCH\` into main."
-
-          # Add label (e.g., "v1.2.3")
-          PR_NUMBER=$(gh pr list --head "$RELEASE_BRANCH" --json number -q '.[0].number')
-          gh pr edit "$PR_NUMBER" --add-label "$LABEL"
 
