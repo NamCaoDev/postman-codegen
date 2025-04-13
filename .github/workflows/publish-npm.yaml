@@ -23,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Publish to NPM
-        run: npx semantic-release --config .releaserc.main.json
+        run: npx semantic-release --branches "main" --plugins "@semantic-release/npm,@semantic-release/github"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
