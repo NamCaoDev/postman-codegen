@@ -1,3 +1,10 @@
+## [2.3.2](https://github.com/NamCaoDev/postman-codegen/compare/v2.3.1...v2.3.2) (2025-04-13)
+
+
+### Bug Fixes
+
+* test try flow ([7973429](https://github.com/NamCaoDev/postman-codegen/commit/79734298af93d80419153463dc51e376c3c092d4))
+
 ## [2.3.1](https://github.com/NamCaoDev/postman-codegen/compare/v2.3.0...v2.3.1) (2025-04-13)
 
 
