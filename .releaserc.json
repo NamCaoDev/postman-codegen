@@ -1,4 +1,4 @@
- {
+{
     "branches": ["release/**"],
     "plugins": [
       "@semantic-release/release-notes-generator",

@@ -32,5 +32,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           HUSKY: 0
-        run: npx semantic-release --config .releaserc.release.json
+        run: npx semantic-release
 
