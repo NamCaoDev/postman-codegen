@@ -1,9 +1,7 @@
 name: Release
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
     branches:
       - release/**
   
@@ -26,10 +24,12 @@ jobs:
           node-version: '20.8.1'
           registry-url: 'https://registry.npmjs.org/'
 
-      - name: Release to NPM 🚀
-        run: npx semantic-release
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run semantic-release for version bump only
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           HUSKY: 0
+        run: npx semantic-release --config .releaserc.release.json
 
