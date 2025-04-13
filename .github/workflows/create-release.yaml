@@ -7,6 +7,7 @@ on:
   
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   create-release:
@@ -24,7 +25,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
       - name: Install GitHub CLI
         run: |
           sudo apt update
@@ -32,7 +33,7 @@ jobs:
 
       - name: Create release branch with create PR for this
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
         run: |
           if [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
             # Check if PR has tag-like label
@@ -45,6 +46,8 @@ jobs:
               git add .github/RELEASE_LOG.md
               git commit -m "chore(release): prepare release $LABEL"
               git push origin "release/$LABEL"
+
+              echo "GH_TOKEN is set: ${{ env.GH_TOKEN != '' }}"
 
               # ✅ Create PR for this
               gh pr create \
