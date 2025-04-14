@@ -41,7 +41,7 @@ export type {
   GenerateTypeEnum,
 };
 
-console.log("Codegen made by Nam Cao");
+console.log("Codegen made by Nam Cao 1");
 
 const LIBRARY_ROOT = path.resolve(__dirname);
 
