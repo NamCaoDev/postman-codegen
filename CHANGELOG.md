@@ -1,3 +1,9 @@
+## <small>2.3.2 (2025-04-15)</small>
+
+* Merge pull request #95 from NamCaoDev/feat/improve-cd ([4370379](https://github.com/NamCaoDev/postman-codegen/commit/4370379)), closes [#95](https://github.com/NamCaoDev/postman-codegen/issues/95)
+
+
+
 ## 2.3.0 (2025-04-15)
 
 * Merge pull request #93 from NamCaoDev/feat/improve-cd ([5b6813d](https://github.com/NamCaoDev/postman-codegen/commit/5b6813d)), closes [#93](https://github.com/NamCaoDev/postman-codegen/issues/93)
