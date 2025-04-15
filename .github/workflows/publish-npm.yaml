@@ -31,19 +31,40 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Extract version from commit message
+        id: extract_version
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "Commit message: $COMMIT_MSG"
+
+          if [[ "$COMMIT_MSG" =~ /release/v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+            echo "✅ Found version: $VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "❌ No version found in commit message."
+            exit 1
+          fi
       
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
         run: |
+          VERSION=${{ steps.extract.outputs.version }}
           curl -X POST https://api.github.com/repos/${{ github.repository }}/releases \
             -H "Authorization: token ${GH_TOKEN}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "tag_name": "${{ inputs.version }}",
-              "target_commitish": "main",
-              "name": "${{ inputs.version }}",
-              "body": "🔖 Auto release for version ${{ inputs.version }}",
-              "draft": false,
-              "prerelease": false
-            }'
+            -d "$(jq -n \
+              --arg tag_name "v$VERSION" \
+              --arg target_commitish "main" \
+              --arg name "v$VERSION" \
+              --arg body "🔖 Auto release for version v$VERSION" \
+              '{
+                tag_name: $tag_name,
+                target_commitish: $target_commitish,
+                name: $name,
+                body: $body,
+                draft: false,
+                prerelease: false
+              }')"
