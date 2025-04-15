@@ -3,7 +3,7 @@ name: Trigger release
 on:
   pull_request:
     types:
-      - [closed]
+      - closed
   
 permissions:
   contents: write
