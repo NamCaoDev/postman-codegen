@@ -46,12 +46,21 @@ jobs:
             echo "❌ No version found in commit message."
             exit 1
           fi
+
+      - name: Read changelog
+        id: changelog
+        run: |
+          CHANGELOG=$(npx conventional-changelog -p angular -r 1)
+          echo "log<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
         run: |
           VERSION=${{ steps.extract_version.outputs.version }}
+          BODY=$(jq -Rs '.' <<< "${{ steps.changelog.outputs.log }}")
           curl -X POST https://api.github.com/repos/${{ github.repository }}/releases \
             -H "Authorization: token ${GH_TOKEN}" \
             -H "Content-Type: application/json" \
@@ -59,7 +68,7 @@ jobs:
               --arg tag_name "v$VERSION" \
               --arg target_commitish "main" \
               --arg name "v$VERSION" \
-              --arg body "🔖 Auto release for version v$VERSION" \
+              --argjson body "$BODY" \
               '{
                 tag_name: $tag_name,
                 target_commitish: $target_commitish,
