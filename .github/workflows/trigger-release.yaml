@@ -3,15 +3,15 @@ name: Trigger release
 on:
   pull_request:
     types:
-      - closed
+      - [closed]
   
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  release:
-     if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+  tigger-release:
+     if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'main') && startsWith(github.event.pull_request.head.ref, 'release/')
      runs-on: ubuntu-latest
      steps:
       - name: Checkout code
@@ -20,7 +20,7 @@ jobs:
       - name: Set Git safe directory
         run: git config --global --add safe.directory /home/runner/work/postman-codegen/postman-codegen
 
-      - name: Trigger release action
+      - name: Trigger release publish npm
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
         run: |
