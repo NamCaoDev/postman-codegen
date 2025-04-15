@@ -47,6 +47,7 @@ jobs:
               npm version $LABEL --no-git-tag-version
               git add .github/RELEASE_LOG.md package.json
               git commit -m "chore: set version to $LABEL"
+              git tag "v$LABEL"
               git push origin "release/$LABEL"
               
               # On process if want use semantic release
