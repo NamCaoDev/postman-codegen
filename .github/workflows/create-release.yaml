@@ -3,7 +3,7 @@ name: Build and Create Release
 on:
   pull_request:
     types:
-      - [closed]
+      - closed
   
 permissions:
   contents: write
