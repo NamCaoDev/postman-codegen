@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   tigger-release:
-     if: startsWith(github.event.head_commit.message, 'Merge pull request') && contains(github.event.head_commit.message, 'from release/')
+     if: contains(github.event.head_commit.message, 'from release/')
      runs-on: ubuntu-latest
      steps:
       - name: Checkout code
@@ -24,11 +24,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
         run: |
-          if [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
-              curl -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/publish-npm.yaml/dispatches \
-                -H "Accept: application/vnd.github.v3+json" \
-                -H "Authorization: token ${GH_TOKEN}" \
-                -d '{"ref":"main"}'
-          fi
+          echo "✅ Commit merged from release/* — triggering publish"
+          curl -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/publish-npm.yaml/dispatches \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${GH_TOKEN}" \
+            -d '{"ref":"main"}'
+          
     
 
