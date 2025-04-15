@@ -3,6 +3,14 @@
 
 ### Bug Fixes
 
+* change condition trigger relase ([f31808b](https://github.com/NamCaoDev/postman-codegen/commit/f31808b31415eef09889635fa781842250d85077))
+* edit on evenet PA ([fd4befc](https://github.com/NamCaoDev/postman-codegen/commit/fd4befcb75e87ad7c0e4a0cf55e28964045015c5))
+
+## [2.1.1](https://github.com/NamCaoDev/postman-codegen/compare/v2.1.0...v2.1.1) (2025-04-15)
+
+
+### Bug Fixes
+
 * edit on evenet PA ([fd4befc](https://github.com/NamCaoDev/postman-codegen/commit/fd4befcb75e87ad7c0e4a0cf55e28964045015c5))
 
 ## [2.1.1](https://github.com/NamCaoDev/postman-codegen/compare/v2.1.0...v2.1.1) (2025-04-15)
