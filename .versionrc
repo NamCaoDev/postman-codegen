@@ -1,0 +1,6 @@
+{
+  "preset": "angular",
+  "ignoreReverted": false,
+  "mergePattern": "^Merge pull request #(\\d+)",
+  "mergeCorrespondence": ["id"]
+}

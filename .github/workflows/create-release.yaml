@@ -55,8 +55,8 @@ jobs:
 
               # Create change log for release branch
               echo "Trigger release for $LABEL" >> .github/RELEASE_LOG.md
-              npx conventional-changelog -p angular -i CHANGELOG.md -s
               npm version $LABEL --no-git-tag-version
+              npx conventional-changelog -p angular -i CHANGELOG.md -s
 
               git add CHANGELOG.md
               git add .github/RELEASE_LOG.md package.json
