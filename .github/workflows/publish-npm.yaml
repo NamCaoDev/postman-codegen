@@ -31,3 +31,19 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
+        run: |
+          curl -X POST https://api.github.com/repos/${{ github.repository }}/releases \
+            -H "Authorization: token ${GH_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "tag_name": "${{ inputs.version }}",
+              "target_commitish": "main",
+              "name": "${{ inputs.version }}",
+              "body": "🔖 Auto release for version ${{ inputs.version }}",
+              "draft": false,
+              "prerelease": false
+            }'
