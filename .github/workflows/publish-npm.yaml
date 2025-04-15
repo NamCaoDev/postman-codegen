@@ -1,10 +1,18 @@
 name: Publish Release
 
+# on:
+#   workflow_dispatch: // // On process if you want use semantic release
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+  
+permissions:
+  contents: write
 
 jobs:
   publish:
+    if: contains(github.event.head_commit.message, '/release/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,8 +27,7 @@ jobs:
         run: npm ci
 
       - name: Publish to NPM
-        run: npx semantic-release --branches "main" --plugins "@semantic-release/npm,@semantic-release/github"
+        # run: npx semantic-release --branches "main" --plugins "@semantic-release/npm,@semantic-release/github" // On process if you want use semantic release
+        run: npm publish --access public
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          HUSKY: 0

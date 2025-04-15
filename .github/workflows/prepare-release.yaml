@@ -2,9 +2,9 @@ name: Prepare Release
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - release/**
+  # push:
+  #   branches:
+  #     - release/** // On process if you want use semantic release
 
 permissions:
   contents: write
