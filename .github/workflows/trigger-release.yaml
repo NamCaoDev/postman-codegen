@@ -4,6 +4,9 @@ name: Trigger release
 #   push:
 #     branches:
 #       - main // On process if you want use semantic release
+
+on:
+  workflow_dispatch:
   
 permissions:
   contents: write
