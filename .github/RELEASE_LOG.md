@@ -18,3 +18,4 @@ Trigger release for v2.2.3
 Trigger release for v2.2.4
 Trigger release for v2.2.5
 Trigger release for v2.2.6
+Trigger release for v2.2.7
