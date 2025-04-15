@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   create-release:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'release/')
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'main')
     runs-on: ubuntu-latest
 
     steps:
@@ -31,11 +31,12 @@ jobs:
           sudo apt update
           sudo apt install -y gh
 
-      - name: Create release branch with create PR for this
+      - name: Create release branch and PR
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
+          if [[ "$HEAD_REF" != release/* ]]; then
             # Check if PR has tag-like label
               LABEL=$(gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$')
               if [ -n "$LABEL" ]; then
@@ -65,5 +66,17 @@ jobs:
               PR_NUMBER=$(gh pr list --head "release/$LABEL" --json number -q '.[0].number')
               gh pr edit "$PR_NUMBER" --add-label "$LABEL"
             fi
+          fi
+
+      - name: Trigger publish-npm.yaml if release branch
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if [[ "$HEAD_REF" == release/* ]]; then
+              curl -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/publish-npm.yaml/dispatches \
+                -H "Accept: application/vnd.github.v3+json" \
+                -H "Authorization: token ${GH_TOKEN}" \
+                -d '{"ref":"main"}'
           fi
 
