@@ -1,5 +1,7 @@
 ## [2.1.1](https://github.com/NamCaoDev/postman-codegen/compare/v2.1.0...v2.1.1) (2025-04-15)
 
+## [2.1.1](https://github.com/NamCaoDev/postman-codegen/compare/v2.1.0...v2.1.1) (2025-04-15)
+
 # [2.1.0](https://github.com/NamCaoDev/postman-codegen/compare/v2.0.9...v2.1.0) (2025-04-14)
 
 
