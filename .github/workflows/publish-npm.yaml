@@ -51,7 +51,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_CLASSIC }}
         run: |
-          VERSION=${{ steps.extract.outputs.version }}
+          VERSION=${{ steps.extract_version.outputs.version }}
           curl -X POST https://api.github.com/repos/${{ github.repository }}/releases \
             -H "Authorization: token ${GH_TOKEN}" \
             -H "Content-Type: application/json" \
