@@ -31,6 +31,9 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org/'
+      
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install GitHub CLI
         run: |
@@ -51,9 +54,9 @@ jobs:
               git config user.email "github-actions[bot]@users.noreply.github.com"
 
               # Create change log for release branch
-              npx conventional-changelog -p angular -i CHANGELOG.md -s
               echo "Trigger release for $LABEL" >> .github/RELEASE_LOG.md
               npm version $LABEL --no-git-tag-version
+              npx conventional-changelog -p angular -i CHANGELOG.md -s
 
               git add CHANGELOG.md
               git add .github/RELEASE_LOG.md package.json

@@ -41,7 +41,13 @@
     "prepare": "npm run build",
     "codegen-ts": "cross-env NODE_OPTIONS='--import tsx' plop --plopfile=index.ts generate-queries",
     "codegen": "npx plop --plopfile=dist/index.js generate-queries",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "changelog": "npx conventional-changelog -p angular -i CHANGELOG.md -s"
+  },
+  "config": {
+    "conventional-changelog": {
+      "preset": "angular"
+    }
   },
   "dependencies": {
     "@turbo/gen": "^2.4.4",
